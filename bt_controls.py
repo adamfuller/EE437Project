@@ -58,10 +58,14 @@ IN4_control.start(0)
 def init_bluetooth():
     os.system("sudo bluetoothctl power on")
     os.system("sudo bluetoothctl agent on")
-    os.system("sudo bluetoothctl pair " + phone_mac_address)
+    PAIR(phone_mac_address)
     os.system("sudo sdptool add SP")
     # os.system()
 
+# Controller accessible functions
+
+def PAIR(mac):
+    os.system("sudo bluetoothctl pair " + mac)
 
 def IN1(val):
     val = float(val)
@@ -113,6 +117,7 @@ controls = {
     "IN4": IN4,
     "ENA": ENA,
     "ENB": ENB,
+    "PAIR": PAIR,
 }
 
 
