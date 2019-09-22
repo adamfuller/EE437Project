@@ -96,14 +96,16 @@ def IN4(val):
         IN4_control.ChangeDutyCycle(val * 100)
 
 def ENA(val):
-    enable = bool(val)
+    val = val.upper()
+    enable = val == "TRUE" or val == "HIGH"
     if enable:
         GPIO.output(ENA_pin, GPIO.HIGH)
     else:
         GPIO.output(ENA_pin, GPIO.LOW)
 
 def ENB(val):
-    enable = bool(val)
+    val = val.upper()
+    enable = val == "TRUE" or val == "HIGH"
     if enable:
         GPIO.output(ENB_pin, GPIO.HIGH)
     else:
@@ -150,6 +152,8 @@ if __name__ == "__main__":
                 time.sleep(0.01)
         except:
             print("oops")
+
+    # If the device escapes the while loop for any reason cleanup the IO       
     IN1_control.stop()
     IN2_control.stop()
     IN3_control.stop()
