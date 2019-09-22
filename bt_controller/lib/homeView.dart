@@ -25,71 +25,92 @@ class _HomeViewState extends State<HomeView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          _getBluetoothButton(),
-          Expanded(
-            child: _getInputs(),
-          ),
-        ],
-      ),
+      body: _getBody(),
     );
   }
 
-  Widget _getInputs() {
+  Widget _getBody() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Expanded(
-          child: Padding(padding: EdgeInsets.zero),
+      children: <Widget>[
+        Padding(
+          padding: EdgeInsets.only(top: 8.0, left: 8.0),
+          child: _getThrottle(),
         ),
-        _getThrottle(),
-        Expanded(
-          child: Padding(padding: EdgeInsets.zero),
-        ),
-        Expanded(
-          child: Padding(padding: EdgeInsets.zero),
+        VerticalDivider(
+          endIndent: 0.0,
         ),
         Expanded(
-          child: Padding(padding: EdgeInsets.zero),
-        ),
-        _getBrake(),
-        Expanded(
-          child: Padding(padding: EdgeInsets.zero),
+          child: _getButtonsAndBrake(),
         ),
       ],
     );
   }
 
+  Widget _getButtonsAndBrake() {
+    return Column(
+      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Padding(
+          padding: EdgeInsets.fromLTRB(0.0, 8.0, 8.0, 0.0),
+          child: _getTopButtons(),
+        ),
+        Expanded(
+          child: Padding(
+            padding: EdgeInsets.zero,
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.only(bottom: 18.0),
+          child: vm.showControls ? _getBrake() : _getSensorData(),
+        ),
+        Expanded(
+          child: Padding(
+            padding: EdgeInsets.zero,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _getSensorData() {
+    return Column(
+      children: <Widget>[
+        Text("X: ${vm.xString}"),
+        Text("Y: ${vm.yString}"),
+        Text("Z: ${vm.zString}"),
+      ],
+    );
+  }
+
   Widget _getThrottle() {
-    return Padding(
-      padding: const EdgeInsets.only(left: 8.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          Expanded(
-            child: RotatedBox(
-              quarterTurns: 1,
-              child: SliderTheme(
-                data: SliderTheme.of(context).copyWith(
-                  trackHeight: 3.0,
-                  thumbColor: Colors.black,
-                  thumbShape: RoundSliderThumbShape(enabledThumbRadius: 8.0),
-                  overlayColor: Colors.purple.withAlpha(32),
-                  overlayShape: RoundSliderOverlayShape(overlayRadius: 14.0),
-                ),
-                child: Slider(
-                  value: vm.throttleValue,
-                  min: -10.0,
-                  max: 10.0,
-                  onChanged: vm.updateThrottle,
-                ),
+    return Column(
+      mainAxisSize: MainAxisSize.max,
+      children: [
+        _getZeroThrottleButton(),
+        Expanded(
+          child: RotatedBox(
+            quarterTurns: 1,
+            child: SliderTheme(
+              data: SliderTheme.of(context).copyWith(
+                trackHeight: 3.0,
+                thumbColor: Colors.black,
+                activeTrackColor: Colors.blue[100],
+                inactiveTrackColor: Colors.blue,
+                thumbShape: RoundSliderThumbShape(enabledThumbRadius: 8.0),
+                // overlayColor: Colors.purple.withAlpha(32),
+                overlayShape: RoundSliderOverlayShape(overlayRadius: 14.0),
+              ),
+              child: Slider(
+                value: vm.throttleValue,
+                min: -10.0,
+                max: 10.0,
+                // divisions: 2,
+                onChanged: vm.updateThrottle,
               ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -114,22 +135,75 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
+  Widget _getTopButtons() {
+    return Row(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        _getBluetoothButton(),
+        vm.isDebug
+            ? _getToggleControlsButton()
+            : Padding(
+                padding: EdgeInsets.zero,
+              ),
+        _getZeroControlsButton(),
+      ],
+    );
+  }
+
   Widget _getBluetoothButton() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 8.0),
-      child: Center(
-        child: RaisedButton.icon(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-          label: Text(vm.isConnected ? "Connected" : "Connect"),
-          color: vm.isConnected ? Colors.blue : Colors.white,
-          textColor: vm.isConnected ? Colors.white : Colors.blue,
-          icon: Icon(
-            vm.isConnected ? Icons.bluetooth_connected : Icons.bluetooth,
-            color: vm.isConnected ? Colors.green : Colors.blue,
-          ),
-          onPressed: vm.isConnected ? () {} : () => vm.bluetoothButtonPressed(context),
-        ),
+    return RaisedButton.icon(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+      label: Text(vm.isConnected ? "Connected" : "Connect"),
+      color: vm.isConnected ? Colors.blue : Colors.white,
+      textColor: vm.isConnected ? Colors.white : Colors.blue,
+      icon: Icon(
+        vm.isConnected ? Icons.bluetooth_connected : Icons.bluetooth,
+        color: vm.isConnected ? Colors.green : Colors.blue,
       ),
+      onPressed: vm.isConnected ? () {} : () => vm.bluetoothButtonPressed(context),
+    );
+  }
+
+  Widget _getToggleControlsButton() {
+    return RaisedButton.icon(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+      label: Text(vm.showControls ? "Show Data" : "Show Controls"),
+      color: Colors.white,
+      textColor: Colors.blue,
+      icon: Icon(
+        vm.showControls ? Icons.swap_horizontal_circle : Icons.swap_horizontal_circle,
+        color: Colors.blue,
+      ),
+      onPressed: vm.isConnected ? () {} : () => vm.toggleControlsPressed(),
+    );
+  }
+
+  Widget _getZeroControlsButton() {
+    return RaisedButton.icon(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+      label: Text("Center"),
+      color: Colors.white,
+      textColor: Colors.blue,
+      icon: Icon(
+        Icons.linear_scale,
+        color: Colors.blue,
+      ),
+      onPressed: vm.isConnected ? () {} : () => vm.zeroControlsPressed(),
+    );
+  }
+
+  Widget _getZeroThrottleButton() {
+    return RaisedButton.icon(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+      label: Text("Neutral"),
+      color: Colors.white,
+      textColor: Colors.blue,
+      icon: Icon(
+        Icons.exposure_zero,
+        color: Colors.blue,
+      ),
+      onPressed: vm.isConnected ? () {} : () => vm.zeroThrottlePressed(),
     );
   }
 }

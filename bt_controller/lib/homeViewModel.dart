@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'sensor_service.dart';
 
 import 'bluetooth_service.dart';
-import 'sensor_service.dart';
 
 class HomeViewModel {
   //
@@ -14,13 +15,13 @@ class HomeViewModel {
   double _x, _y, _z;
   double _xNorm, _yNorm, _zNorm;
   double _throttleValue = 0.0;
-  
 
   //
   // Public Properties
   //
   Color cardColor = Colors.white;
   bool isConnected = false;
+  bool showControls = true;
 
   //
   // Getters
@@ -35,6 +36,12 @@ class HomeViewModel {
   String get zNormString => _zNorm.toStringAsFixed(4);
 
   double get throttleValue => _throttleValue;
+
+  bool get isDebug {
+    bool val = false;
+    assert(val = true);
+    return val;
+  }
 
   //
   // Constructor
@@ -58,21 +65,23 @@ class HomeViewModel {
       },
     );
 
-    SensorService.listenNormalized(
-      (x, y, z) {
-        this._xNorm = x;
-        this._yNorm = y;
-        this._zNorm = z;
-        onDataChanged();
-      },
-    );
-
     SensorService.start();
   }
 
   void bluetoothButtonPressed(BuildContext context) async {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
+    SystemChrome.setEnabledSystemUIOverlays([]);
     String input = await showInputDialog(context, "Enter device BT mac address", confirmText: "Connect");
-    if (input == null || input.isEmpty) return;
+
+    if (input == null || input.isEmpty) {
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.landscapeLeft,
+      ]);
+      SystemChrome.setEnabledSystemUIOverlays([]);
+      return;
+    }
 
     bool successfullyConnected = await _bluetoothService.listen(
       input,
@@ -86,6 +95,10 @@ class HomeViewModel {
 
     this.isConnected = successfullyConnected;
 
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+    ]);
+    SystemChrome.setEnabledSystemUIOverlays([]);
     onDataChanged();
   }
 
@@ -101,6 +114,22 @@ class HomeViewModel {
 
   void brakeReleased(TapUpDetails details) {
     this.cardColor = Colors.white;
+    onDataChanged();
+  }
+
+  void toggleControlsPressed() {
+    this.showControls = !this.showControls;
+
+    onDataChanged();
+  }
+
+  void zeroControlsPressed() {
+    SensorService.zero();
+    onDataChanged();
+  }
+
+  void zeroThrottlePressed() {
+    _throttleValue = 0.0;
     onDataChanged();
   }
 

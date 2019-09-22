@@ -3,10 +3,9 @@ import 'package:flutter/services.dart';
 import 'homeView.dart';
 
 void main() {
-  // SystemChrome.setPreferredOrientations([
-  //   DeviceOrientation.landscapeLeft,
-  //   DeviceOrientation.portraitUp,
-  // ]);
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.landscapeLeft,
+  ]);
   SystemChrome.setEnabledSystemUIOverlays([]);
   runApp(AppWrapper());
 }

@@ -1,29 +1,27 @@
 import 'package:sensors/sensors.dart';
-import "dart:math";
 
 class SensorService {
   static SensorService _sensorService;
   // Number of sensor readings to be averaged.
   static const averageCycleDuration = 5;
 
-  // Average of the last 20 values
-  static double _xAccAvg = 0;
-  static double _yAccAvg = 0;
-  static double _zAccAvg = 0;
-  static double _xNormAccAvg = 0;
-  static double _yNormAccAvg = 0;
-  static double _zNormAccAvg = 0;
+  // Current angle of the device in radians
+  static double _xAngle = 0;
+  static double _yAngle = 0;
+  static double _zAngle = 0; // Plane of the screen
 
-  // Last 20 values retrieved from the accelerometer
-  static List<double> _xAcc = [];
-  static List<double> _yAcc = [];
-  static List<double> _zAcc = [];
-  static List<double> _xNormAcc = [];
-  static List<double> _yNormAcc = [];
-  static List<double> _zNormAcc = [];
+  // Previous values retrieved from the gyroscope (rad/s)
+  static List<double> _xGyroPrev = [];
+  static List<double> _yGyroPrev = [];
+  static List<double> _zGyroPrev = [];
 
-  static List<void Function(double, double, double)> _listeners = [];
-  static List<void Function(double, double, double)> _normalizedListeners = [];
+  // Time between measurements in seconds
+  static List<double> _times = [];
+
+  static List<DateTime> _dates = [];
+
+  static List<void Function(double, double, double)> _gyroListeners = [];
+  static List<void Function(double, double, double)> _gyroNormalizedListeners = [];
 
   // This turns the class into a singleton (all instances are the same instance)
   factory SensorService() {
@@ -33,51 +31,52 @@ class SensorService {
 
   // Starts listening to the sensors and recording to the averaging lists.
   static void start() {
-    accelerometerEvents.listen((AccelerometerEvent event) {
-      double total = sqrt(event.x * event.x + event.y * event.y + event.z * event.z);
+    _initGyroscope();
+  }
 
-      _xAcc = _xAcc.take(averageCycleDuration).toList()..insert(0, event.x);
-      _yAcc = _yAcc.take(averageCycleDuration).toList()..insert(0, event.y);
-      _zAcc = _zAcc.take(averageCycleDuration).toList()..insert(0, event.z);
+  static void _initGyroscope() {
+    gyroscopeEvents.listen((GyroscopeEvent event) {
+      // Remove previous measurements and only hold the most recent few
+      _xGyroPrev = _xGyroPrev.take(averageCycleDuration).toList()..insert(0, event.x);
+      _yGyroPrev = _yGyroPrev.take(averageCycleDuration).toList()..insert(0, event.y);
+      _zGyroPrev = _zGyroPrev.take(averageCycleDuration).toList()..insert(0, event.z);
+      _dates = _dates.take(averageCycleDuration).toList()..insert(0, DateTime.now());
 
-      _xNormAcc = _xNormAcc.take(averageCycleDuration).toList()..insert(0, event.x.abs() / total);
-      _yNormAcc = _yNormAcc.take(averageCycleDuration).toList()..insert(0, event.y.abs() / total);
-      _zNormAcc = _zNormAcc.take(averageCycleDuration).toList()..insert(0, event.z.abs() / total);
+      if (_dates.length < 2) return;
 
-      _xAccAvg = 0;
-      _yAccAvg = 0;
-      _zAccAvg = 0;
-      _xNormAccAvg = 0;
-      _yNormAccAvg = 0;
-      _zNormAccAvg = 0;
+      // Calculate the time that has passed since last measurement. (seconds)
+      double timeBetween = _dates[0].difference(_dates[1]).inMilliseconds / 1000.0;
 
-      int n = 0;
-      _xAcc.forEach((val) => _xAccAvg = (_xAccAvg * n + val) / (n += 1));
+      // Add the time to the array.
+      _times = _times.take(averageCycleDuration).toList()..insert(0, timeBetween);
 
-      n = 0;
-      _yAcc.forEach((val) => _yAccAvg = (_yAccAvg * n + val) / (n += 1));
+      // Calculate the angular acceleration. (rad/s^2)s
+      double _xAccel = (_xGyroPrev[0] - _xGyroPrev[1]) / timeBetween;
+      double _yAccel = (_yGyroPrev[0] - _yGyroPrev[1]) / timeBetween;
+      double _zAccel = (_zGyroPrev[0] - _zGyroPrev[1]) / timeBetween;
 
-      n = 0;
-      _zAcc.forEach((val) => _zAccAvg = (_zAccAvg * n + val) / (n += 1));
-
-      n = 0;
-      _xNormAcc.forEach((val) => _xNormAccAvg = (_xNormAccAvg * n + val) / (n += 1));
-
-      n = 0;
-      _yNormAcc.forEach((val) => _yNormAccAvg = (_yNormAccAvg * n + val) / (n += 1));
-
-      n = 0;
-      _zNormAcc.forEach((val) => _zNormAccAvg = (_zNormAccAvg * n + val) / (n += 1));
+      // θnew = θold + w*t + 1/2 * a & t^2
+      _xAngle = _xAngle + _xGyroPrev[0] * timeBetween + 0.5 * _xAccel * timeBetween * timeBetween;
+      _yAngle = _yAngle + _yGyroPrev[0] * timeBetween + 0.5 * _yAccel * timeBetween * timeBetween;
+      _zAngle = _zAngle + _zGyroPrev[0] * timeBetween + 0.5 * _zAccel * timeBetween * timeBetween;
 
       // Send the averages to all the listeners.
-      _listeners?.forEach((_) => _(_xAccAvg, _yAccAvg, _zAccAvg));
-      _normalizedListeners?.forEach((_) => _(_xNormAccAvg, _yNormAccAvg, _zNormAccAvg));
+      _gyroListeners?.forEach((_) => _(_xAngle, _yAngle, _zAngle));
     });
+  }
 
-    // gyroscopeEvents.listen((GyroscopeEvent event) {});
+  static void zero() {
+    _xAngle = 0;
+    _yAngle = 0;
+    _zAngle = 0;
+    _xGyroPrev.clear();
+    _yGyroPrev.clear();
+    _zGyroPrev.clear();
+    _times.clear();
+    _dates.clear();
   }
 
   // Listen to the sensors.
-  static void listen(void Function(double, double, double) onChange) => _listeners.add(onChange);
-  static void listenNormalized(void Function(double, double, double) onChange) => _normalizedListeners.add(onChange);
+  static void listen(void Function(double, double, double) onChange) => _gyroListeners.add(onChange);
+  static void listenNormalized(void Function(double, double, double) onChange) => _gyroNormalizedListeners.add(onChange);
 }
