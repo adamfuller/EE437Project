@@ -97,7 +97,7 @@ def IN4(val):
 
 def ENA(val):
     val = val.upper()
-    enable = val == "TRUE" or val == "HIGH"
+    enable = "TRUE" in val or "HIGH" in val
     if enable:
         GPIO.output(ENA_pin, GPIO.HIGH)
     else:
@@ -105,7 +105,7 @@ def ENA(val):
 
 def ENB(val):
     val = val.upper()
-    enable = val == "TRUE" or val == "HIGH"
+    enable = "TRUE" in val or "HIGH" in val
     if enable:
         GPIO.output(ENB_pin, GPIO.HIGH)
     else:
