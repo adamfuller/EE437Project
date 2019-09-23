@@ -28,7 +28,7 @@ class SteeringService {
 
   static Map<String, String> get cache => _cache;
 
-  /// Returns a list of commands depending on the input values.
+  /// Caches a list of commands depending on the input values.
   ///
   /// x, y, and z should be radians values representing the device's orientation.
   ///
@@ -37,7 +37,7 @@ class SteeringService {
   /// Outputs will be the connection name followed by an intensity value between 0 and 1
   ///
   /// ex: IN1 0.5
-  static List<String> accept(double x, double y, double z, double throttle) {
+  static void accept(double x, double y, double z, double throttle) {
     List<String> output = [];
 
     // Put z in the range -2π < z < 2π
@@ -99,42 +99,20 @@ class SteeringService {
     }
 
     _cacheResult(output);
-    return output;
   }
 
-  /// Returns low left and right power.
-  /// 
   /// Adds low left and right power to the cache.
-  static List<String> goNeutral() {
+  static void goNeutral() {
     isInNeutral = true;
     List<String> output = [
       "$leftPower LOW",
       "$rightPower LOW",
     ];
     _cacheResult(output);
-    return output;
   }
 
   static void _cacheResult(List<String> data) => data.forEach((value) => _cache[value.split(" ")[0]] = value.split(" ")[1]);
 }
-
-// enum DriverConnection {
-//   in1,
-//   in2,
-//   in3,
-//   in4,
-//   enA,
-//   enB,
-// }
-
-// const Map<DriverConnection, String> driverConnectionString = {
-//   DriverConnection.in1: "IN1",
-//   DriverConnection.in2: "IN2",
-//   DriverConnection.in3: "IN3",
-//   DriverConnection.in4: "IN4",
-//   DriverConnection.enA: "ENA",
-//   DriverConnection.enB: "ENB",
-// };
 
 class DriverConnection {
   static const String in1 = "IN1";
