@@ -53,6 +53,8 @@ IN1_control.start(0)
 IN2_control.start(0)
 IN3_control.start(0)
 IN4_control.start(0)
+GPIO.output(ENA_pin, GPIO.HIGH)
+GPIO.output(ENB_pin, GPIO.HIGH)
 
 
 def init_bluetooth():
@@ -143,6 +145,7 @@ if __name__ == "__main__":
 
                 prefix = line_contents[0]
                 if ( prefix in controls ):
+                    print(l)
                     if (len(line_contents) > 1):
                         data = line_contents[1]
                         controls[prefix](data)

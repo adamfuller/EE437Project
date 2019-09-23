@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:bt_controller/steering_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'sensor_service.dart';
@@ -21,7 +24,10 @@ class HomeViewModel {
   //
   Color cardColor = Colors.white;
   bool isConnected = false;
+  String connectedAddress;
   bool showControls = true;
+  double throttleMax = 10.0;
+  Timer btTimer;
 
   //
   // Getters
@@ -36,6 +42,9 @@ class HomeViewModel {
   String get zNormString => _zNorm.toStringAsFixed(4);
 
   double get throttleValue => _throttleValue;
+
+  List<String> commands = [];
+  List<String> lastCommands = [];
 
   bool get isDebug {
     bool val = false;
@@ -61,14 +70,33 @@ class HomeViewModel {
         this._x = x;
         this._y = y;
         this._z = z;
-        onDataChanged();
+        this.lastCommands = commands.isNotEmpty ? commands : lastCommands;
+        List<String> _commands = SteeringService.accept(x, y, z, _throttleValue / 10.0);
+        if (!_commands.every((_) => lastCommands.contains(_))){
+          this.commands.addAll(_commands);
+          onDataChanged();
+        }
       },
     );
 
     SensorService.start();
+
+    this.btTimer = Timer.periodic(Duration(milliseconds: 50), (_) {
+      this.commands.forEach((command) {
+        _bluetoothService?.sendString(connectedAddress, command);
+      });
+      this.commands.clear();
+    });
   }
 
   void bluetoothButtonPressed(BuildContext context) async {
+    if (isConnected) {
+      _bluetoothService.close();
+      this.isConnected = false;
+      this.connectedAddress = null;
+      onDataChanged();
+      return;
+    }
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
     ]);
@@ -94,6 +122,7 @@ class HomeViewModel {
     if (successfullyConnected) await showAlertDialog(context, "Connected", "Connected to bluetooth device");
 
     this.isConnected = successfullyConnected;
+    this.connectedAddress = input;
 
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeLeft,
@@ -130,13 +159,17 @@ class HomeViewModel {
 
   void zeroThrottlePressed() {
     _throttleValue = 0.0;
+    this.commands.addAll(SteeringService.goNeutral());
     onDataChanged();
   }
 
   //
   // Dispose
   //
-  void dispose() {}
+  void dispose() {
+    this.btTimer.cancel();
+    this._bluetoothService.close();
+  }
 }
 
 Future<String> showInputDialog(

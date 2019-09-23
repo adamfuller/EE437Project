@@ -74,11 +74,9 @@ class _HomeViewState extends State<HomeView> {
 
   Widget _getSensorData() {
     return Column(
-      children: <Widget>[
-        Text("X: ${vm.xString}"),
-        Text("Y: ${vm.yString}"),
-        Text("Z: ${vm.zString}"),
-      ],
+      children: <Widget>[Text("X: ${vm.xString}"), Text("Y: ${vm.yString}"), Text("Z: ${vm.zString}"), Text("Throttle: ${(vm.throttleValue / vm.throttleMax).toStringAsFixed(4)}")]
+          .followedBy(vm.lastCommands.map<Widget>((command) => Text(command)))
+          .toList(),
     );
   }
 
@@ -89,21 +87,21 @@ class _HomeViewState extends State<HomeView> {
         _getZeroThrottleButton(),
         Expanded(
           child: RotatedBox(
-            quarterTurns: 1,
+            quarterTurns: 3,
             child: SliderTheme(
               data: SliderTheme.of(context).copyWith(
                 trackHeight: 3.0,
                 thumbColor: Colors.black,
-                activeTrackColor: Colors.blue[100],
-                inactiveTrackColor: Colors.blue,
+                // activeTrackColor: Colors.blue[100],
+                // inactiveTrackColor: Colors.blue,
                 thumbShape: RoundSliderThumbShape(enabledThumbRadius: 8.0),
                 // overlayColor: Colors.purple.withAlpha(32),
                 overlayShape: RoundSliderOverlayShape(overlayRadius: 14.0),
               ),
               child: Slider(
                 value: vm.throttleValue,
-                min: -10.0,
-                max: 10.0,
+                min: -1 * vm.throttleMax,
+                max: vm.throttleMax,
                 // divisions: 2,
                 onChanged: vm.updateThrottle,
               ),
@@ -159,9 +157,9 @@ class _HomeViewState extends State<HomeView> {
       textColor: vm.isConnected ? Colors.white : Colors.blue,
       icon: Icon(
         vm.isConnected ? Icons.bluetooth_connected : Icons.bluetooth,
-        color: vm.isConnected ? Colors.green : Colors.blue,
+        color: vm.isConnected ? Colors.white : Colors.blue,
       ),
-      onPressed: vm.isConnected ? () {} : () => vm.bluetoothButtonPressed(context),
+      onPressed: () => vm.bluetoothButtonPressed(context),
     );
   }
 
@@ -175,7 +173,7 @@ class _HomeViewState extends State<HomeView> {
         vm.showControls ? Icons.swap_horizontal_circle : Icons.swap_horizontal_circle,
         color: Colors.blue,
       ),
-      onPressed: vm.isConnected ? () {} : () => vm.toggleControlsPressed(),
+      onPressed: vm.toggleControlsPressed,
     );
   }
 
@@ -189,7 +187,7 @@ class _HomeViewState extends State<HomeView> {
         Icons.linear_scale,
         color: Colors.blue,
       ),
-      onPressed: vm.isConnected ? () {} : () => vm.zeroControlsPressed(),
+      onPressed: () => vm.zeroControlsPressed(),
     );
   }
 
@@ -203,7 +201,7 @@ class _HomeViewState extends State<HomeView> {
         Icons.exposure_zero,
         color: Colors.blue,
       ),
-      onPressed: vm.isConnected ? () {} : () => vm.zeroThrottlePressed(),
+      onPressed: () => vm.zeroThrottlePressed(),
     );
   }
 }

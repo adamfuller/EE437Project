@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:convert';
 import 'dart:typed_data';
 
 import "package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart";
@@ -27,9 +28,9 @@ class BluetoothService {
     }
   }
 
-  void sendData(String address, Uint8List data) => _connections[address].output.add(data);
+  void sendData(String address, Uint8List data) => _connections[address]?.output?.add(data);
 
-  void sendString(String address, String text) => sendData(address, Uint8List.fromList(text.codeUnits));
+  void sendString(String address, String text) => sendData(address, utf8.encode(text + "\r\n"));
 
   void close() {
     // Cancel all the listener callbacks.
