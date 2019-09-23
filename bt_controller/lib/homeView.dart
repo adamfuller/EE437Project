@@ -74,9 +74,14 @@ class _HomeViewState extends State<HomeView> {
 
   Widget _getSensorData() {
     return Column(
-      children: <Widget>[Text("X: ${vm.xString}"), Text("Y: ${vm.yString}"), Text("Z: ${vm.zString}"), Text("Throttle: ${(vm.throttleValue / vm.throttleMax).toStringAsFixed(4)}")]
-          .followedBy(vm.lastCommands.map<Widget>((command) => Text(command)))
-          .toList(),
+      children: <Widget>[
+        Text("X: ${vm.xString}"),
+        Text("Y: ${vm.yString}"),
+        Text("Z: ${vm.zString}"),
+        Text(
+          "Throttle: ${(vm.throttleValue / vm.throttleMax).toStringAsFixed(4)}",
+        )
+      ].followedBy(vm.currentState.map<Widget>((command) => Text(command))).toList(),
     );
   }
 

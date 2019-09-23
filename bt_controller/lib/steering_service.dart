@@ -1,14 +1,17 @@
+// TODO: Explore using a Map<String, String> instead of List<String>
+
 /// Class to convert SensorService's angle outputs into a command
 /// or string of commands to send over bluetooth.
 class SteeringService {
   static SteeringService _steeringService;
   static const double _pi = 3.14159265358979323846264;
+  static Map<String, String> _cache = {};
 
   // How far can the device be turned without triggering differential steering.
   static const double steeringPlay = 0.1;
 
-  // How far until the throttle activates.
-  // static const double throttlePlay = 0.1;
+  // How far until the throttle kicks the car out of neutral.
+  static const double throttlePlay = 0.05;
 
   static const String leftForward = DriverConnection.in1;
   static const String leftBackward = DriverConnection.in2;
@@ -17,11 +20,13 @@ class SteeringService {
   static const String leftPower = DriverConnection.enA;
   static const String rightPower = DriverConnection.enB;
 
-  static bool isInNeutral = false;
+  static bool isInNeutral = true;
 
   factory SteeringService() {
     return _steeringService;
   }
+
+  static Map<String, String> get cache => _cache;
 
   /// Returns a list of commands depending on the input values.
   ///
@@ -52,11 +57,10 @@ class SteeringService {
     // Set throttle between 0 and 1.
     throttle = throttle.abs();
 
-    // Arbitrary strength or outside motor during turn
-    // inside motor will be 1 - turnPower
-    double turnPower = throttle * z.abs() / (_pi / 2);
+    // Arbitrary strength or inside motor during turn
+    double turnPower = throttle * (1 - z.abs() / (_pi / 2));
 
-    if (isInNeutral) {
+    if (isInNeutral && throttle > throttlePlay) {
       output.addAll([
         "$rightPower HIGH",
         "$leftPower HIGH",
@@ -77,33 +81,41 @@ class SteeringService {
         "$left ${throttle.toStringAsFixed(2)}",
         "$right ${throttle.toStringAsFixed(2)}",
       ]);
-    } else {
+    } else if (turnPower > 0) {
       // Making a turn.
       if (isTurningLeft) {
         output.addAll([
-          "$left ${(1 - turnPower).toStringAsFixed(2)}",
-          "$right ${turnPower.toStringAsFixed(2)}",
+          "$left ${turnPower.toStringAsFixed(2)}",
+          "$right ${throttle.toStringAsFixed(2)}",
         ]);
       } else if (isTurningRight) {
         output.addAll([
-          "$left ${turnPower.toStringAsFixed(2)}",
-          "$right ${(1 - turnPower).toStringAsFixed(2)}",
+          "$left ${throttle.toStringAsFixed(2)}",
+          "$right ${turnPower.toStringAsFixed(2)}",
         ]);
       } else {
         // This shouldn't happen.
       }
     }
 
+    _cacheResult(output);
     return output;
   }
 
+  /// Returns low left and right power.
+  /// 
+  /// Adds low left and right power to the cache.
   static List<String> goNeutral() {
     isInNeutral = true;
-    return [
-      "$leftPower 0.00",
-      "$rightPower 0.00",
+    List<String> output = [
+      "$leftPower LOW",
+      "$rightPower LOW",
     ];
+    _cacheResult(output);
+    return output;
   }
+
+  static void _cacheResult(List<String> data) => data.forEach((value) => _cache[value.split(" ")[0]] = value.split(" ")[1]);
 }
 
 // enum DriverConnection {

@@ -18,6 +18,7 @@ class HomeViewModel {
   double _x, _y, _z;
   double _xNorm, _yNorm, _zNorm;
   double _throttleValue = 0.0;
+  Map<String, String> previousState = {};
 
   //
   // Public Properties
@@ -28,6 +29,7 @@ class HomeViewModel {
   bool showControls = true;
   double throttleMax = 10.0;
   Timer btTimer;
+  // List<String> commands = [];
 
   //
   // Getters
@@ -43,8 +45,7 @@ class HomeViewModel {
 
   double get throttleValue => _throttleValue;
 
-  List<String> commands = [];
-  List<String> lastCommands = [];
+  List<String> get currentState => SteeringService.cache.entries.fold(<String>[], (val, entry) => val..add(entry.key + " " + entry.value));
 
   bool get isDebug {
     bool val = false;
@@ -70,22 +71,28 @@ class HomeViewModel {
         this._x = x;
         this._y = y;
         this._z = z;
-        this.lastCommands = commands.isNotEmpty ? commands : lastCommands;
-        List<String> _commands = SteeringService.accept(x, y, z, _throttleValue / 10.0);
-        if (!_commands.every((_) => lastCommands.contains(_))){
-          this.commands.addAll(_commands);
-          onDataChanged();
-        }
+
+        SteeringService.accept(x, y, z, _throttleValue / 10.0);
+        // this.commands.addAll(_commands);
+        onDataChanged();
       },
     );
 
     SensorService.start();
 
     this.btTimer = Timer.periodic(Duration(milliseconds: 50), (_) {
-      this.commands.forEach((command) {
-        _bluetoothService?.sendString(connectedAddress, command);
-      });
-      this.commands.clear();
+      Map<String, String> state = SteeringService.cache;
+
+      for (MapEntry entry in state.entries) {
+        String key = entry.key;
+        String value = entry.value;
+
+        if (!previousState.containsKey(key) || previousState[key] != state[key]) {
+          _bluetoothService.sendString(connectedAddress, "$key $value");
+          print("$key $value");
+          previousState[key] = value;
+        }
+      }
     });
   }
 
@@ -159,7 +166,7 @@ class HomeViewModel {
 
   void zeroThrottlePressed() {
     _throttleValue = 0.0;
-    this.commands.addAll(SteeringService.goNeutral());
+    SteeringService.goNeutral();
     onDataChanged();
   }
 
