@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:bt_controller/steering_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'sensor_service.dart';
 
+import 'sensor_service.dart';
+import 'steering_service.dart';
 import 'bluetooth_service.dart';
 
 class HomeViewModel {
