@@ -21,7 +21,6 @@ class SensorService {
   static List<DateTime> _dates = [];
 
   static List<void Function(double, double, double)> _gyroListeners = [];
-  static List<void Function(double, double, double)> _gyroNormalizedListeners = [];
 
   // This turns the class into a singleton (all instances are the same instance)
   factory SensorService() {
@@ -78,5 +77,4 @@ class SensorService {
 
   // Listen to the sensors.
   static void listen(void Function(double, double, double) onChange) => _gyroListeners.add(onChange);
-  static void listenNormalized(void Function(double, double, double) onChange) => _gyroNormalizedListeners.add(onChange);
 }
