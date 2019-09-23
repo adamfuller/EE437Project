@@ -6,14 +6,18 @@ import 'dart:typed_data';
 import "package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart";
 
 class BluetoothService {
-  Map<String, BluetoothConnection> _connections = HashMap();
-  List<StreamSubscription> _listeners = [];
+  static BluetoothService _bluetoothService;
+  static Map<String, BluetoothConnection> _connections = HashMap();
+  static List<StreamSubscription> _listeners = [];
 
-  BluetoothService();
+  factory BluetoothService(){
+    print("BluetoothService created");
+    return _bluetoothService;
+  }
 
-  Future<void> _connectIfNotAlready(String address) async => _connections.containsKey(address) ? null : _connections[address] = await BluetoothConnection.toAddress(address);
+  static Future<void> _connectIfNotAlready(String address) async => _connections.containsKey(address) ? null : _connections[address] = await BluetoothConnection.toAddress(address);
 
-  Future<bool> listen(String address, void Function(String, Uint8List) onEvent) async {
+  static Future<bool> listen(String address, void Function(String, Uint8List) onEvent) async {
     try {
       // Connect to the device if we aren't already.
       await _connectIfNotAlready(address);
@@ -28,11 +32,19 @@ class BluetoothService {
     }
   }
 
-  void sendData(String address, Uint8List data) => _connections[address]?.output?.add(data);
+  static void sendData(String address, Uint8List data) => _connections[address]?.output?.add(data);
 
-  void sendString(String address, String text) => sendData(address, utf8.encode(text + "\r\n"));
+  static void sendString(String address, String text) => sendData(address, utf8.encode(text + "\r\n"));
 
-  void close() {
+
+  static void close({String address}) {
+    // Only cancel one if it is selected.
+    if (address != null){
+      _connections[address]?.close();
+      _connections.removeWhere((key, v)=> key == address);
+      return;
+    }
+
     // Cancel all the listener callbacks.
     _listeners.forEach((_) => _.cancel());
 

@@ -13,8 +13,6 @@ class HomeViewModel {
   //
   Function onDataChanged;
 
-  BluetoothService _bluetoothService;
-
   double _x, _y, _z;
   double _xNorm, _yNorm, _zNorm;
   double _throttleValue = 0.0;
@@ -29,7 +27,6 @@ class HomeViewModel {
   bool showControls = true;
   double throttleMax = 10.0;
   Timer btTimer;
-  // List<String> commands = [];
 
   //
   // Getters
@@ -64,7 +61,6 @@ class HomeViewModel {
   // Public functions
   //
   void init() {
-    _bluetoothService = BluetoothService();
 
     SensorService.listen(
       (x, y, z) {
@@ -88,7 +84,7 @@ class HomeViewModel {
         String value = entry.value;
 
         if (!previousState.containsKey(key) || previousState[key] != state[key]) {
-          _bluetoothService.sendString(connectedAddress, "$key $value");
+          BluetoothService.sendString(connectedAddress, "$key $value");
           print("$key $value");
           previousState[key] = value;
         }
@@ -98,7 +94,7 @@ class HomeViewModel {
 
   void bluetoothButtonPressed(BuildContext context) async {
     if (isConnected) {
-      _bluetoothService.close();
+      BluetoothService.close();
       this.isConnected = false;
       this.connectedAddress = null;
       onDataChanged();
@@ -118,7 +114,7 @@ class HomeViewModel {
       return;
     }
 
-    bool successfullyConnected = await _bluetoothService.listen(
+    bool successfullyConnected = await BluetoothService.listen(
       input,
       (address, data) {
         print("Do something here!!!!");
@@ -175,7 +171,7 @@ class HomeViewModel {
   //
   void dispose() {
     this.btTimer.cancel();
-    this._bluetoothService.close();
+    BluetoothService.close();
   }
 }
 
