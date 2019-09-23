@@ -97,17 +97,13 @@ class _HomeViewState extends State<HomeView> {
               data: SliderTheme.of(context).copyWith(
                 trackHeight: 3.0,
                 thumbColor: Colors.black,
-                // activeTrackColor: Colors.blue[100],
-                // inactiveTrackColor: Colors.blue,
                 thumbShape: RoundSliderThumbShape(enabledThumbRadius: 8.0),
-                // overlayColor: Colors.purple.withAlpha(32),
                 overlayShape: RoundSliderOverlayShape(overlayRadius: 14.0),
               ),
               child: Slider(
                 value: vm.throttleValue,
                 min: -1 * vm.throttleMax,
                 max: vm.throttleMax,
-                // divisions: 2,
                 onChanged: vm.updateThrottle,
               ),
             ),
@@ -144,11 +140,7 @@ class _HomeViewState extends State<HomeView> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
         _getBluetoothButton(),
-        vm.isDebug
-            ? _getToggleControlsButton()
-            : Padding(
-                padding: EdgeInsets.zero,
-              ),
+        _getToggleControlsButton(),
         _getZeroControlsButton(),
       ],
     );

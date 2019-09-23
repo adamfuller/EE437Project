@@ -58,7 +58,7 @@ class SensorService {
       _prevZGyro = event.z;
       _prevDate = now;
       // Send the averages to all the listeners.
-      _gyroListeners?.forEach((_) => _(_xAngle, _yAngle, _zAngle));
+      if (!_xAngle.isNaN && !_yAngle.isNaN && !_zAngle.isNaN) _gyroListeners?.forEach((_) => _(_xAngle, _yAngle, _zAngle));
     });
   }
 
@@ -69,7 +69,7 @@ class SensorService {
     _prevXGyro = 0.0;
     _prevYGyro = 0.0;
     _prevZGyro = 0.0;
-    _prevDate = null;
+    _prevDate = DateTime.now();
   }
 
   // Listen to the sensors.

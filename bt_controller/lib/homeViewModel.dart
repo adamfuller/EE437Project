@@ -13,7 +13,9 @@ class HomeViewModel {
   //
   Function onDataChanged;
 
-  double _x, _y, _z;
+  double _x = 0.0;
+  double _y = 0.0;
+  double _z = 0.0;
   double _xNorm, _yNorm, _zNorm;
   double _throttleValue = 0.0;
   Map<String, String> previousState = {};
@@ -85,7 +87,7 @@ class HomeViewModel {
 
         if (!previousState.containsKey(key) || previousState[key] != state[key]) {
           BluetoothService.sendString(connectedAddress, "$key $value");
-          print("$key $value");
+          // print("$key $value");
           previousState[key] = value;
         }
       }
