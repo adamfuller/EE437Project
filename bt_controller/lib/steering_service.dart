@@ -1,5 +1,3 @@
-// TODO: Explore using a Map<String, String> instead of List<String>
-
 /// Class to convert SensorService's angle outputs into a command
 /// or string of commands to send over bluetooth.
 class SteeringService {
