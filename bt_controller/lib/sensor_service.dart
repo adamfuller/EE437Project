@@ -2,23 +2,17 @@ import 'package:sensors/sensors.dart';
 
 class SensorService {
   static SensorService _sensorService;
-  // Number of sensor readings to be averaged.
-  static const averageCycleDuration = 5;
-
   // Current angle of the device in radians
   static double _xAngle = 0;
   static double _yAngle = 0;
   static double _zAngle = 0; // Plane of the screen
 
   // Previous values retrieved from the gyroscope (rad/s)
-  static List<double> _xGyroPrev = [];
-  static List<double> _yGyroPrev = [];
-  static List<double> _zGyroPrev = [];
+  static double _prevXGyro = 0.0;
+  static double _prevYGyro = 0.0;
+  static double _prevZGyro = 0.0;
 
-  // Time between measurements in seconds
-  static List<double> _times = [];
-
-  static List<DateTime> _dates = [];
+  static DateTime _prevDate;
 
   static List<void Function(double, double, double)> _gyroListeners = [];
 
@@ -35,30 +29,34 @@ class SensorService {
 
   static void _initGyroscope() {
     gyroscopeEvents.listen((GyroscopeEvent event) {
-      // Remove previous measurements and only hold the most recent few
-      _xGyroPrev = _xGyroPrev.take(averageCycleDuration).toList()..insert(0, event.x);
-      _yGyroPrev = _yGyroPrev.take(averageCycleDuration).toList()..insert(0, event.y);
-      _zGyroPrev = _zGyroPrev.take(averageCycleDuration).toList()..insert(0, event.z);
-      _dates = _dates.take(averageCycleDuration).toList()..insert(0, DateTime.now());
+      DateTime now = DateTime.now();
 
-      if (_dates.length < 2) return;
+      // If no previous values are recorded wait till next input.
+      if (_prevDate == null) {
+        _prevDate = now;
+        _prevXGyro = event.x;
+        _prevYGyro = event.y;
+        _prevZGyro = event.z;
+        return;
+      }
 
       // Calculate the time that has passed since last measurement. (seconds)
-      double timeBetween = _dates[0].difference(_dates[1]).inMilliseconds / 1000.0;
-
-      // Add the time to the array.
-      _times = _times.take(averageCycleDuration).toList()..insert(0, timeBetween);
+      double timeBetween = now.difference(_prevDate).inMilliseconds / 1000.0;
 
       // Calculate the angular acceleration. (rad/s^2)s
-      double _xAccel = (_xGyroPrev[0] - _xGyroPrev[1]) / timeBetween;
-      double _yAccel = (_yGyroPrev[0] - _yGyroPrev[1]) / timeBetween;
-      double _zAccel = (_zGyroPrev[0] - _zGyroPrev[1]) / timeBetween;
+      double _xAccel = (event.x - _prevXGyro) / timeBetween;
+      double _yAccel = (event.y - _prevYGyro) / timeBetween;
+      double _zAccel = (event.z - _prevZGyro) / timeBetween;
 
       // θnew = θold + w*t + 1/2 * a & t^2
-      _xAngle = _xAngle + _xGyroPrev[0] * timeBetween + 0.5 * _xAccel * timeBetween * timeBetween;
-      _yAngle = _yAngle + _yGyroPrev[0] * timeBetween + 0.5 * _yAccel * timeBetween * timeBetween;
-      _zAngle = _zAngle + _zGyroPrev[0] * timeBetween + 0.5 * _zAccel * timeBetween * timeBetween;
+      _xAngle = _xAngle + event.x * timeBetween + 0.5 * _xAccel * timeBetween * timeBetween;
+      _yAngle = _yAngle + event.y * timeBetween + 0.5 * _yAccel * timeBetween * timeBetween;
+      _zAngle = _zAngle + event.z * timeBetween + 0.5 * _zAccel * timeBetween * timeBetween;
 
+      _prevXGyro = event.x;
+      _prevYGyro = event.y;
+      _prevZGyro = event.z;
+      _prevDate = now;
       // Send the averages to all the listeners.
       _gyroListeners?.forEach((_) => _(_xAngle, _yAngle, _zAngle));
     });
@@ -68,11 +66,10 @@ class SensorService {
     _xAngle = 0;
     _yAngle = 0;
     _zAngle = 0;
-    _xGyroPrev.clear();
-    _yGyroPrev.clear();
-    _zGyroPrev.clear();
-    _times.clear();
-    _dates.clear();
+    _prevXGyro = 0.0;
+    _prevYGyro = 0.0;
+    _prevZGyro = 0.0;
+    _prevDate = null;
   }
 
   // Listen to the sensors.
