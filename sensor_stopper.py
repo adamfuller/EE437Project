@@ -28,20 +28,27 @@ echo_start_time = time.time()
 echo_end_time = time.time()
 
 has_been_triggered = False
-
+has_started = False
 
 def echo_start_callback(channel):
-    global echo_start_time
+    global echo_start_time, has_started
     echo_start_time = time.time()
+    has_started = True
     print("echo pin triggered")
 
 
 def echo_end_callback(channel):
-    global echo_end_time, has_been_triggered
+    global echo_end_time, has_been_triggered, has_started
     echo_end_time = time.time()
     has_been_triggered = True
+    has_started = False
     print("echo ended")
 
+def echo_callback(channel):
+    if (has_started):
+        echo_end_callback(channel)
+    else:
+        echo_start_callback(channel)
 
 def send_pulse():
     GPIO.output(trigger_pin, GPIO.HIGH)
@@ -50,8 +57,8 @@ def send_pulse():
 
 
 # Initiate callbacks
-GPIO.add_event_detect(echo_pin, GPIO.RISING, callback=echo_start_callback)
-GPIO.add_event_detect(echo_pin, GPIO.FALLING, callback=echo_end_callback)
+# GPIO.add_event_detect(echo_pin, GPIO.RISING, callback=echo_start_callback)
+GPIO.add_event_detect(echo_pin, GPIO.BOTH, callback=echo_callback)
 
 if __name__ == "__main__":
     print("Main")
