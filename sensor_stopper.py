@@ -70,6 +70,7 @@ if __name__ == "__main__":
             # if dx is less than braking_distance
             #   start braking
             dx = 17150 / (echo_start_time - echo_end_time)
+            print(str(dx))
         except:
             print("oops")
         time.sleep(0.001)
