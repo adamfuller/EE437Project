@@ -16,38 +16,42 @@ ENA_pin = 10
 ENB_pin = 12
 
 trigger_pin = 11  # Output
-trigger_listener_pin = 13  # Input - connected to trigger_pin
 echo_pin = 15  # Input
 
 GPIO.setmode(GPIO.BOARD)  # number in parenthesis from pinout bash command
 
 # Setup pins
 GPIO.setup(echo_pin, GPIO.IN)
-GPIO.setup(trigger_listener_pin, GPIO.IN)
+GPIO.setup(trigger_pin, GPIO.OUT)
 
-trigger_time = time.time()
-echo_time = time.time()
+echo_start_time = time.time()
+echo_end_time = time.time()
 
 has_been_triggered = False
-is_waiting_for_echo = False
 
 
-def echo_callback(channel):
-    global echo_time
-    echo_time = time.time()
+def echo_start_callback(channel):
+    global echo_start_time
+    echo_start_time = time.time()
     print("echo pin triggered")
 
 
-def trigger_callback(channel):
-    global trigger_time
-    trigger_time = time.time()
-    print("trigger pin high")
+def echo_end_callback(channel):
+    global echo_end_time, has_been_triggered
+    echo_end_time = time.time()
+    has_been_triggered = True
+    print("echo ended")
+
+
+def send_pulse():
+    GPIO.output(trigger_pin, GPIO.HIGH)
+    time.sleep(0.00001)
+    GPIO.output(trigger_pin, GPIO.LOW)
 
 
 # Initiate callbacks
-GPIO.add_event_detect(echo_pin, GPIO.RISING, callback=echo_callback)
-GPIO.add_event_detect(trigger_listener_pin, GPIO.RISING,
-                      callback=trigger_callback)
+GPIO.add_event_detect(echo_pin, GPIO.RISING, callback=echo_start_callback)
+GPIO.add_event_detect(echo_pin, GPIO.FALLING, callback=echo_end_callback)
 
 if __name__ == "__main__":
     print("Main")
@@ -56,14 +60,16 @@ if __name__ == "__main__":
             # print("Start")
             time.sleep(0.001)
             # Trigger output
-            # set is_waiting_for_echo to True
+            send_pulse()
             # wait for echo callback
+            while(not has_been_triggered):
+                time.sleep(0.001)
             # dx = v/2/dt
-            # dt = echo_time - trigger_time
             # v = 34300/2 = 17150 (cm/s)
             # dx = 17150 / (echo_time - trigger_time)
             # if dx is less than braking_distance
             #   start braking
+            dx = 17150 / (echo_start_time - echo_end_time)
         except:
             print("oops")
         time.sleep(0.001)
