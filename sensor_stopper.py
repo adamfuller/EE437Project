@@ -32,13 +32,13 @@ has_been_triggered = False
 is_waiting_for_echo = False
 
 
-def echo_callback():
+def echo_callback(channel):
     global echo_time
     echo_time = time.time()
     print("echo pin triggered")
 
 
-def trigger_callback():
+def trigger_callback(channel):
     global trigger_time
     trigger_time = time.time()
     print("trigger pin high")
