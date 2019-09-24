@@ -48,7 +48,8 @@ if __name__ == "__main__":
     print("Main")
     while(True):
         try:
-            print("Start")
+            # print("Start")
+            time.sleep(0.001)
             # Trigger output
             # set is_waiting_for_echo to True
             # wait for echo callback
@@ -60,3 +61,4 @@ if __name__ == "__main__":
             #   start braking
         except:
             print("oops")
+        time.sleep(0.001)
