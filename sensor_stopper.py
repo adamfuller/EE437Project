@@ -23,6 +23,7 @@ GPIO.setmode(GPIO.BOARD)  # number in parenthesis from pinout bash command
 
 # Setup pins
 GPIO.setup(echo_pin, GPIO.IN)
+GPIO.setup(trigger_listener_pin, GPIO.IN)
 
 trigger_time = time.time()
 echo_time = time.time()
@@ -66,3 +67,5 @@ if __name__ == "__main__":
         except:
             print("oops")
         time.sleep(0.001)
+
+    GPIO.cleanup()
