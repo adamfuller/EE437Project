@@ -21,6 +21,9 @@ echo_pin = 15  # Input
 
 GPIO.setmode(GPIO.BOARD)  # number in parenthesis from pinout bash command
 
+# Setup pins
+GPIO.setup(echo_pin, GPIO.IN)
+
 trigger_time = time.time()
 echo_time = time.time()
 
@@ -40,6 +43,7 @@ def trigger_callback():
     print("trigger pin high")
 
 
+# Initiate callbacks
 GPIO.add_event_detect(echo_pin, GPIO.RISING, callback=echo_callback)
 GPIO.add_event_detect(trigger_listener_pin, GPIO.RISING,
                       callback=trigger_callback)
