@@ -53,11 +53,11 @@ if __name__ == "__main__":
             # Trigger output
             # set is_waiting_for_echo to True
             # wait for echo callback
-            # ∆x = v/2/∆t
-            # ∆t = echo_time - trigger_time
+            # dx = v/2/dt
+            # dt = echo_time - trigger_time
             # v = 34300/2 = 17150 (cm/s)
-            # ∆x = 17150 / (echo_time - trigger_time)
-            # if ∆x is less than braking_distance
+            # dx = 17150 / (echo_time - trigger_time)
+            # if dx is less than braking_distance
             #   start braking
         except:
             print("oops")
