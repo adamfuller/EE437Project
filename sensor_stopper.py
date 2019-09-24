@@ -71,6 +71,7 @@ if __name__ == "__main__":
             # wait for echo callback
             while(not has_been_triggered):
                 time.sleep(0.001)
+            has_been_triggered = False
             # dx = v/2/dt
             # v = 34300/2 = 17150 (cm/s)
             # dx = 17150 / (echo_time - trigger_time)
