@@ -2,8 +2,8 @@ import time
 import subprocess
 import sys
 import os
-from datetime import datetime
-from datetime import timedelta
+# from datetime import datetime
+# from datetime import timedelta
 import RPi.GPIO as GPIO
 
 '''
@@ -25,6 +25,10 @@ Free roll:
 
 '''
 
+# sensor_stopper pins used
+trigger_pin = 11
+echo_pin = 13
+
 IN1_pin = 3
 IN2_pin = 5
 IN3_pin = 7
@@ -35,7 +39,7 @@ ENB_pin = 12
 phone_mac_address = "80:4E:70:C1:DC:51"
 channel = 1
 
-GPIO.setmode(GPIO.BOARD) # number in parenthesis from pinout bash command
+GPIO.setmode(GPIO.BOARD)  # number in parenthesis from pinout bash command
 
 GPIO.setup(IN1_pin, GPIO.OUT)
 GPIO.setup(IN2_pin, GPIO.OUT)
@@ -66,52 +70,49 @@ def init_bluetooth():
 
 # Controller accessible functions
 
+
 def PAIR(mac):
     os.system("sudo bluetoothctl pair " + mac)
 
+
 def IN1(val):
-    val = float(val)
-    if val > 1.0:
-        IN1_control.ChangeDutyCycle(val)
-    else:
-        IN1_control.ChangeDutyCycle(val * 100)
-        
+    adjustDutyCycle(IN1_control, float(val))
+
+
 def IN2(val):
-    val = float(val)
-    if val > 1.0:
-        IN2_control.ChangeDutyCycle(val)
-    else:
-        IN2_control.ChangeDutyCycle(val * 100)
-        
+    adjustDutyCycle(IN2_control, float(val))
+
+
 def IN3(val):
-    val = float(val)
-    if val > 1.0:
-        IN3_control.ChangeDutyCycle(val)
-    else:
-        IN3_control.ChangeDutyCycle(val * 100)
-        
+    adjustDutyCycle(IN3_control, float(val))
+
+
 def IN4(val):
-    val = float(val)
-    if val > 1.0:
-        IN4_control.ChangeDutyCycle(val)
-    else:
-        IN4_control.ChangeDutyCycle(val * 100)
+    adjustDutyCycle(IN4_control, float(val))
+
 
 def ENA(val):
-    val = val.upper()
-    enable = "TRUE" in val or "HIGH" in val
-    if enable:
-        GPIO.output(ENA_pin, GPIO.HIGH)
-    else:
-        GPIO.output(ENA_pin, GPIO.LOW)
+    adjustOutput(ENA_pin, val)
+
 
 def ENB(val):
+    adjustOutput(ENB_pin, val)
+
+
+def adjustOutput(pin, val):
     val = val.upper()
     enable = "TRUE" in val or "HIGH" in val
     if enable:
-        GPIO.output(ENB_pin, GPIO.HIGH)
+        GPIO.output(pin, GPIO.HIGH)
     else:
-        GPIO.output(ENB_pin, GPIO.LOW)
+        GPIO.output(pin, GPIO.LOW)
+
+
+def adjustDutyCycle(obj, val):
+    if val > 1.0:
+        obj.ChangeDutyCycle(val)
+    else:
+        obj.ChangeDutyCycle(val * 100)
 
 
 controls = {
@@ -125,7 +126,8 @@ controls = {
 }
 
 
-primary_command = "sudo rfcomm listen /dev/rfcomm0 " + str(channel) + " picocom -c /dev/rfcomm0 --omap crcrlf"
+primary_command = "sudo rfcomm listen /dev/rfcomm0 " + \
+    str(channel) + " picocom -c /dev/rfcomm0 --omap crcrlf"
 
 if __name__ == "__main__":
     print("Starting Main")
@@ -133,30 +135,33 @@ if __name__ == "__main__":
 
     while True:
         try:
-            p = subprocess.Popen(primary_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            p = subprocess.Popen(primary_command, shell=True,
+                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             for l in iter(p.stdout.readline, b""):
                 # print(l)
                 if "Couldn't execute command picocom" in l:
                     command2 = "sudo apt-get install picocom"
-                    p2 = subprocess.Popen(command2, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                    p2 = subprocess.Popen(
+                        command2, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
                     break
 
-                line_contents = l.replace("\n", "").replace("\r", "").split(" ")
+                line_contents = l.replace(
+                    "\n", "").replace("\r", "").split(" ")
 
                 prefix = line_contents[0]
-                if ( prefix in controls ):
+                if (prefix in controls):
                     print(l)
                     if (len(line_contents) > 1):
                         data = line_contents[1]
                         controls[prefix](data)
                     else:
                         controls[prefix](None)
-            
+
                 time.sleep(0.01)
         except:
             print("oops")
 
-    # If the device escapes the while loop for any reason cleanup the IO       
+    # If the device escapes the while loop for any reason cleanup the IO
     IN1_control.stop()
     IN2_control.stop()
     IN3_control.stop()
