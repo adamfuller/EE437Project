@@ -15,6 +15,7 @@ class HomeViewModel {
   // Private Properties
   //
   Function onDataChanged;
+  static const double _pi = 3.14159265358979323846264;
 
   double _x = 0.0;
   double _y = 0.0;
@@ -35,6 +36,7 @@ class HomeViewModel {
   String btListen = "";
   bool isAcceptingInputs = true;
   bool isConnecting = false;
+  bool useThrottleSlider = true;
 
   //
   // Getters
@@ -75,7 +77,18 @@ class HomeViewModel {
         this._y = y;
         this._z = z;
 
-        SteeringService.accept(x, y, z, (_throttleValue - throttleMax / 2.0) / (throttleMax / 2.0) );
+        double throttleVal = (_throttleValue - throttleMax / 2.0) / (throttleMax / 2.0);
+
+        if (!useThrottleSlider){
+          if (y.abs() > _pi/2.0) {
+            // Use the sign of y
+            throttleVal = (y/y.abs());
+          } else {
+            throttleVal = y / (_pi/2.0);
+          }
+        }
+
+        SteeringService.accept(x, y, z, throttleVal );
         onDataChanged();
       },
     );

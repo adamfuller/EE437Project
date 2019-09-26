@@ -32,13 +32,13 @@ class _HomeViewState extends State<HomeView> {
   Widget _getBody() {
     return Row(
       children: <Widget>[
-        Padding(
+        vm.useThrottleSlider ? Padding(
           padding: EdgeInsets.only(top: 8.0, left: 8.0),
           child: _getThrottle(),
-        ),
-        VerticalDivider(
+        ) : Padding(padding: EdgeInsets.zero,),
+        vm.useThrottleSlider ? VerticalDivider(
           endIndent: 0.0,
-        ),
+        ) : Padding(padding: EdgeInsets.zero),
         Expanded(
           child: _getButtonsAndBrake(),
         ),
@@ -129,6 +129,11 @@ class _HomeViewState extends State<HomeView> {
             vm.isAcceptingInputs = b;
           });
         }),
+        _labeledCheckBox(vm.useThrottleSlider, "Use Throttle Slider", (b) {
+          setState(() {
+            vm.useThrottleSlider = b;
+          });
+        }),
       ],
     );
   }
@@ -138,7 +143,7 @@ class _HomeViewState extends State<HomeView> {
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         Checkbox(
-          value: vm.isAcceptingInputs,
+          value: value,
           onChanged: onChanged,
         ),
         Text(text),
