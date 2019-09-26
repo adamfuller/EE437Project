@@ -29,6 +29,7 @@ class HomeViewModel {
   bool showControls = true;
   double throttleMax = 10.0;
   Timer btTimer;
+  String btListen = "";
 
   //
   // Getters
@@ -63,7 +64,6 @@ class HomeViewModel {
   // Public functions
   //
   void init() {
-
     SensorService.listen(
       (x, y, z) {
         this._x = x;
@@ -78,7 +78,7 @@ class HomeViewModel {
 
     SensorService.start();
 
-    this.btTimer = Timer.periodic(Duration(milliseconds: 50), (_) {
+    this.btTimer = Timer.periodic(Duration(milliseconds: 100), (_) {
       Map<String, String> state = SteeringService.cache;
 
       for (MapEntry entry in state.entries) {
@@ -102,24 +102,31 @@ class HomeViewModel {
       onDataChanged();
       return;
     }
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-    ]);
-    SystemChrome.setEnabledSystemUIOverlays([]);
-    String input = await showInputDialog(context, "Enter device BT mac address", confirmText: "Connect");
+    // SystemChrome.setPreferredOrientations([
+    //   DeviceOrientation.portraitUp,
+    // ]);
+    // SystemChrome.setEnabledSystemUIOverlays([]);
+    // String input = await showInputDialog(context, "Enter device BT mac address", confirmText: "Connect");
 
-    if (input == null || input.isEmpty) {
-      SystemChrome.setPreferredOrientations([
-        DeviceOrientation.landscapeLeft,
-      ]);
-      SystemChrome.setEnabledSystemUIOverlays([]);
-      return;
-    }
+    // if (input == null || input.isEmpty) {
+    //   SystemChrome.setPreferredOrientations([
+    //     DeviceOrientation.landscapeLeft,
+    //   ]);
+    //   SystemChrome.setEnabledSystemUIOverlays([]);
+    //   return;
+    // }
 
     bool successfullyConnected = await BluetoothService.listen(
-      input,
+      "98:D3:B1:F5:B3:BF",
       (address, data) {
-        print("Do something here!!!!");
+        // print("Do something here!!!!");
+        // print(String.fromCharCodes(data.toList()));
+        btListen += String.fromCharCodes(data.toList());
+        while (btListen.contains("\n")) {
+          print(btListen.substring(0, btListen.indexOf("\n")));
+          btListen = btListen.substring(btListen.indexOf("\n") + 1);
+        }
+        // print(btListen.length);
       },
     );
 
@@ -127,7 +134,7 @@ class HomeViewModel {
     if (successfullyConnected) await showAlertDialog(context, "Connected", "Connected to bluetooth device");
 
     this.isConnected = successfullyConnected;
-    this.connectedAddress = input;
+    this.connectedAddress = "98:D3:B1:F5:B3:BF";
 
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeLeft,
@@ -143,6 +150,7 @@ class HomeViewModel {
 
   void brakePressed(TapDownDetails details) {
     this.cardColor = Colors.red;
+    SteeringService.goNeutral();
     onDataChanged();
   }
 

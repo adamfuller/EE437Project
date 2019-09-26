@@ -11,12 +11,12 @@ class SteeringService {
   // How far until the throttle kicks the car out of neutral.
   static const double throttlePlay = 0.05;
 
-  static const String leftForward = DriverConnection.in1;
-  static const String leftBackward = DriverConnection.in2;
-  static const String rightForward = DriverConnection.in3;
-  static const String rightBackward = DriverConnection.in4;
-  static const String leftPower = DriverConnection.enA;
-  static const String rightPower = DriverConnection.enB;
+  static const String rightForward = DriverConnection.in1;
+  static const String rightBackward = DriverConnection.in2;
+  static const String leftBackward = DriverConnection.in3;
+  static const String leftForward = DriverConnection.in4;
+  static const String rightPower = DriverConnection.enA;
+  static const String leftPower = DriverConnection.enB;
 
   static bool isInNeutral = true;
 
@@ -60,8 +60,8 @@ class SteeringService {
 
     if (isInNeutral && throttle > throttlePlay) {
       output.addAll([
-        "$rightPower HIGH",
-        "$leftPower HIGH",
+        "$rightPower HIGH\n",
+        "$leftPower HIGH\n",
       ]);
       isInNeutral = false;
     }
@@ -71,25 +71,25 @@ class SteeringService {
     String right = isForward ? rightForward : rightBackward;
 
     // Set the opposite directions to 0 power.
-    output.add(isForward ? "$leftBackward 0.00" : "$leftForward 0.00");
-    output.add(isForward ? "$rightBackward 0.00" : "$rightForward 0.00");
+    output.add(isForward ? "$leftBackward 0.00\n" : "$leftForward 0.00\n");
+    output.add(isForward ? "$rightBackward 0.00\n" : "$rightForward 0.00\n");
 
     if (isStraight) {
       output.addAll([
-        "$left ${throttle.toStringAsFixed(2)}",
-        "$right ${throttle.toStringAsFixed(2)}",
+        "$left ${throttle.toStringAsFixed(2)}\n",
+        "$right ${throttle.toStringAsFixed(2)}\n",
       ]);
     } else if (turnPower > 0) {
       // Making a turn.
       if (isTurningLeft) {
         output.addAll([
-          "$left ${turnPower.toStringAsFixed(2)}",
-          "$right ${throttle.toStringAsFixed(2)}",
+          "$left ${turnPower.toStringAsFixed(2)}\n",
+          "$right ${throttle.toStringAsFixed(2)}\n",
         ]);
       } else if (isTurningRight) {
         output.addAll([
-          "$left ${throttle.toStringAsFixed(2)}",
-          "$right ${turnPower.toStringAsFixed(2)}",
+          "$left ${throttle.toStringAsFixed(2)}\n",
+          "$right ${turnPower.toStringAsFixed(2)}\n",
         ]);
       } else {
         // This shouldn't happen.
@@ -103,8 +103,8 @@ class SteeringService {
   static void goNeutral() {
     isInNeutral = true;
     List<String> output = [
-      "$leftPower LOW",
-      "$rightPower LOW",
+      "$leftPower LOW\n",
+      "$rightPower LOW\n",
     ];
     _cacheResult(output);
   }
