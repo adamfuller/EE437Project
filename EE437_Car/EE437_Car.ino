@@ -38,9 +38,10 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  //  int dist = getDistance();
-
+  int dist = getDistance();
+  
   // Check if we should brake.
+  bool shouldBrake = abs(dist) <= 20;
 
   // Check for next command(s)
   while (Serial.available() && index < 9){
@@ -57,7 +58,11 @@ void loop() {
     switch (intent){
       case 0x01:
         // IN1
-        analogWrite(IN1_PIN, extent);
+        if (shouldBrake){
+          analogWrite(IN1_PIN, 0);
+        } else {
+          analogWrite(IN1_PIN, extent);
+        }
         break;
       case 0x02:
         // IN2
@@ -69,7 +74,11 @@ void loop() {
         break;
       case 0x04:
         // IN4
-        analogWrite(IN4_PIN, extent);
+        if (shouldBrake){
+          analogWrite(IN4_PIN, 0);
+        } else {
+          analogWrite(IN4_PIN, extent);
+        }
         break;
       case 0x05:
         // ENA
