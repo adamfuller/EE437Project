@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -6,6 +7,8 @@ import 'package:flutter/services.dart';
 import 'sensor_service.dart';
 import 'steering_service.dart';
 import 'bluetooth_service.dart';
+
+const String deviceMacAddress = "98:D3:B1:F5:B3:BF";
 
 class HomeViewModel {
   //
@@ -17,8 +20,8 @@ class HomeViewModel {
   double _y = 0.0;
   double _z = 0.0;
   double _xNorm, _yNorm, _zNorm;
-  double _throttleValue = 0.0;
-  Map<String, String> previousState = {};
+  double _throttleValue = 5.0;
+  Map<int, int> previousState = {};
 
   //
   // Public Properties
@@ -30,6 +33,8 @@ class HomeViewModel {
   double throttleMax = 10.0;
   Timer btTimer;
   String btListen = "";
+  bool isAcceptingInputs = true;
+  bool isConnecting = false;
 
   //
   // Getters
@@ -45,7 +50,7 @@ class HomeViewModel {
 
   double get throttleValue => _throttleValue;
 
-  List<String> get currentState => SteeringService.cache.entries.fold(<String>[], (val, entry) => val..add(entry.key + " " + entry.value));
+  List<String> get currentState => SteeringService.cache.entries.fold(<String>[], (list, e) => list..add(((e.key << 5) + e.value).toRadixString(2)));
 
   bool get isDebug {
     bool val = false;
@@ -70,27 +75,19 @@ class HomeViewModel {
         this._y = y;
         this._z = z;
 
-        SteeringService.accept(x, y, z, _throttleValue / 10.0);
-        // this.commands.addAll(_commands);
+        SteeringService.accept(x, y, z, (_throttleValue - throttleMax / 2.0) / (throttleMax / 2.0) );
         onDataChanged();
       },
     );
 
     SensorService.start();
 
-    this.btTimer = Timer.periodic(Duration(milliseconds: 100), (_) {
-      Map<String, String> state = SteeringService.cache;
+    this.btTimer = Timer.periodic(Duration(milliseconds: 50), (_) {
+      if (!isAcceptingInputs) return;
+      Map<int, int> state = SteeringService.cache;
+      Uint8List commands = Uint8List.fromList(state.entries.fold(<int>[], (list, e) => list..add((e.key << 5) + e.value)));
 
-      for (MapEntry entry in state.entries) {
-        String key = entry.key;
-        String value = entry.value;
-
-        if (!previousState.containsKey(key) || previousState[key] != state[key]) {
-          BluetoothService.sendString(connectedAddress, "$key $value");
-          // print("$key $value");
-          previousState[key] = value;
-        }
-      }
+      BluetoothService.sendData(connectedAddress, commands);
     });
   }
 
@@ -102,22 +99,12 @@ class HomeViewModel {
       onDataChanged();
       return;
     }
-    // SystemChrome.setPreferredOrientations([
-    //   DeviceOrientation.portraitUp,
-    // ]);
-    // SystemChrome.setEnabledSystemUIOverlays([]);
-    // String input = await showInputDialog(context, "Enter device BT mac address", confirmText: "Connect");
 
-    // if (input == null || input.isEmpty) {
-    //   SystemChrome.setPreferredOrientations([
-    //     DeviceOrientation.landscapeLeft,
-    //   ]);
-    //   SystemChrome.setEnabledSystemUIOverlays([]);
-    //   return;
-    // }
+    isConnecting = true;
+    onDataChanged();
 
     bool successfullyConnected = await BluetoothService.listen(
-      "98:D3:B1:F5:B3:BF",
+      deviceMacAddress,
       (address, data) {
         // print("Do something here!!!!");
         // print(String.fromCharCodes(data.toList()));
@@ -130,11 +117,15 @@ class HomeViewModel {
       },
     );
 
+    previousState = {};
+    SensorService.zero();
+
     if (!successfullyConnected) await showAlertDialog(context, "Error", "Failed connect to bluetooth device");
     if (successfullyConnected) await showAlertDialog(context, "Connected", "Connected to bluetooth device");
 
     this.isConnected = successfullyConnected;
-    this.connectedAddress = "98:D3:B1:F5:B3:BF";
+    this.connectedAddress = deviceMacAddress;
+    this.isConnecting = false;
 
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeLeft,
@@ -171,7 +162,7 @@ class HomeViewModel {
   }
 
   void zeroThrottlePressed() {
-    _throttleValue = 0.0;
+    _throttleValue = throttleMax / 2.0;
     SteeringService.goNeutral();
     onDataChanged();
   }

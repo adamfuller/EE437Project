@@ -1,5 +1,3 @@
-//#include <SoftwareSerial.h>
-
 #define RECV_PIN  12
 #define ECHO_PIN  A4  
 #define TRIG_PIN  A5
@@ -11,10 +9,11 @@
 #define IN4_PIN  9
 
 int pinToChange;
-String btOutput;
-
-//SoftwareSerial bluetooth(7, 8);
-
+int btOutput;
+int index = -1;
+int intent, extent;
+int extentCache[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+int intentCache[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 int getDistance() {
   digitalWrite(TRIG_PIN, LOW);
@@ -25,45 +24,7 @@ int getDistance() {
   return (int)pulseIn(ECHO_PIN, HIGH) / 58;
 }
 
-String getBtData(){
-  String data = "";
-  char input;
-  while (Serial.available() && (( input = Serial.read() ) != '_' )) data += input;
-  return data;
-}
-
-void adjustOutput(int pin, String val){
-//  Serial.print("adjustOutput: ");
-//  Serial.print(pin);
-  
-  val.toUpperCase();
-  bool enable = val.indexOf("TRUE") >= 0 || val.indexOf("HIGH") >= 0;
-  if (enable){
-//    Serial.println(" HIGH");
-    digitalWrite(pin, HIGH);
-  } else {
-//    Serial.println(" LOW");
-    digitalWrite(pin, LOW);
-  }
-}
-
-void adjustDutyCycle(int pin, double val){
-//  Serial.print("adjustDutyCycle: ");
-//  Serial.print(pin);
-//  Serial.print(" ");
-  
-  
-  if (val > 1.0){
-    analogWrite(pin, val);
-//    Serial.println(val);
-  } else {
-    analogWrite(pin, (int)(val * 255) );
-//    Serial.println((int) (val * 255) );
-  }
-}
-
 void setup() {
-  // put your setup code here, to run once:
   Serial.begin(9600);
   pinMode(ECHO_PIN, INPUT);
   pinMode(TRIG_PIN, OUTPUT);
@@ -77,52 +38,51 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  int dist = getDistance();
-  pinToChange = ENA_PIN;
-  btOutput += getBtData();
+  //  int dist = getDistance();
 
-  if (btOutput.indexOf("_") < 0) return;
-  if (btOutput != NULL || btOutput != ""){
-    Serial.print("btOutput: " );
-    Serial.println(btOutput);
-//    Serial.print("Index of EN: " );
-//    Serial.println(btOutput.indexOf("EN"));
-    if (btOutput.indexOf("EN") >= 0){
-      // Control enable pins
-      
-      
-      if (btOutput.indexOf("B") >= 0) pinToChange = ENB_PIN;
-      
-      String indicatorString = btOutput.substring(3, btOutput.length());
-      adjustOutput(pinToChange, indicatorString);
-      
-    } else {
-      // One of the controller's INX pins
-      
-      int pinNum = btOutput.substring(2, 3).toInt();
-      String valString = btOutput.substring(3, btOutput.length());
-      double val = valString.toDouble();
-      
-      switch(pinNum){
-        case 1:
-          pinToChange = IN1_PIN;
-          break;
-        case 2:
-          pinToChange = IN2_PIN;
-          break;
-        case 3:
-          pinToChange = IN3_PIN;
-          break;
-         case 4:
-          pinToChange = IN4_PIN;
-          break;
-         default:
-          break;
-      }
+  // Check if we should brake.
 
-      adjustDutyCycle(pinToChange, val);
-      
+  // Check for next command(s)
+  while (Serial.available() && index < 9){
+    index++;
+    btOutput = Serial.read();
+    intentCache[index] = (btOutput & 0xE0) >> 5;
+    extentCache[index] = (int)(((btOutput & 0x1F) / 31.0) * 255 );
+  }
+
+  for (int i = index; i >= 0; i--){
+    intent = intentCache[index];
+    extent = extentCache[index];
+    
+    switch (intent){
+      case 0x01:
+        // IN1
+        analogWrite(IN1_PIN, extent);
+        break;
+      case 0x02:
+        // IN2
+        analogWrite(IN2_PIN, extent);
+        break;
+      case 0x03:
+        // IN3
+        analogWrite(IN3_PIN, extent);
+        break;
+      case 0x04:
+        // IN4
+        analogWrite(IN4_PIN, extent);
+        break;
+      case 0x05:
+        // ENA
+        analogWrite(ENA_PIN, extent);
+        break;
+      case 0x06:
+        // ENB
+        analogWrite(ENB_PIN, extent);
+        break;
+      default:
+        break;
     }
   }
-  btOutput = "";
+  
+  index = -1;
 }

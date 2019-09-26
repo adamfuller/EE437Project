@@ -59,9 +59,16 @@ class _HomeViewState extends State<HomeView> {
             padding: EdgeInsets.zero,
           ),
         ),
-        Padding(
-          padding: EdgeInsets.only(bottom: 18.0),
-          child: vm.showControls ? _getBrake() : _getSensorData(),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _getToggles(),
+            VerticalDivider(),
+            Padding(
+              padding: EdgeInsets.only(bottom: 18.0),
+              child: vm.showControls ? _getBrake() : _getSensorData(),
+            ),
+          ],
         ),
         Expanded(
           child: Padding(
@@ -79,7 +86,7 @@ class _HomeViewState extends State<HomeView> {
         Text("Y: ${vm.yString}"),
         Text("Z: ${vm.zString}"),
         Text(
-          "Throttle: ${(vm.throttleValue / vm.throttleMax).toStringAsFixed(4)}",
+          "Throttle: ${((vm.throttleValue - vm.throttleMax/2) / (vm.throttleMax / 2.0) ).toStringAsFixed(4)}",
         )
       ].followedBy(vm.currentState.map<Widget>((command) => Text(command))).toList(),
     );
@@ -102,13 +109,39 @@ class _HomeViewState extends State<HomeView> {
               ),
               child: Slider(
                 value: vm.throttleValue,
-                min: -1 * vm.throttleMax,
+                min: 0,
                 max: vm.throttleMax,
                 onChanged: vm.updateThrottle,
               ),
             ),
           ),
         ),
+      ],
+    );
+  }
+
+  Widget _getToggles() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        _labeledCheckBox(vm.isAcceptingInputs, "Accept Inputs", (b) {
+          setState(() {
+            vm.isAcceptingInputs = b;
+          });
+        }),
+      ],
+    );
+  }
+
+  Widget _labeledCheckBox(bool value, String text, void Function(bool) onChanged) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        Checkbox(
+          value: vm.isAcceptingInputs,
+          onChanged: onChanged,
+        ),
+        Text(text),
       ],
     );
   }
@@ -127,7 +160,7 @@ class _HomeViewState extends State<HomeView> {
           padding: const EdgeInsets.all(100),
           child: Text(
             "Brake",
-            style: TextStyle(fontSize: 20),
+            style: TextStyle(fontSize: 20, color: Colors.black),
           ),
         ),
       ),
@@ -149,10 +182,10 @@ class _HomeViewState extends State<HomeView> {
   Widget _getBluetoothButton() {
     return RaisedButton.icon(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-      label: Text(vm.isConnected ? "Connected" : "Connect"),
+      label: Text(vm.isConnected ? "Connected" : (vm.isConnecting ? "Connecting..." : "Connect") ),
       color: vm.isConnected ? Colors.blue : Colors.white,
       textColor: vm.isConnected ? Colors.white : Colors.blue,
-      icon: Icon(
+      icon: vm.isConnecting ? SizedBox(child:CircularProgressIndicator(), height: 20, width: 20) :Icon(
         vm.isConnected ? Icons.bluetooth_connected : Icons.bluetooth,
         color: vm.isConnected ? Colors.white : Colors.blue,
       ),

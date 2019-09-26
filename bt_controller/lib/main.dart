@@ -15,7 +15,7 @@ class AppWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'EE 437 Controller',
-      theme: ThemeData(primarySwatch: Colors.blue),
+      theme: ThemeData(brightness: Brightness.light),
       home: HomeView(),
       debugShowCheckedModeBanner: false,
     );
