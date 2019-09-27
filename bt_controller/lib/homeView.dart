@@ -134,6 +134,10 @@ class _HomeViewState extends State<HomeView> {
             vm.useThrottleSlider = b;
           });
         }),
+        _getSpinRightButton(),
+        _getSpinLeftButton(),
+        _getCancelSpinButton(),
+
       ],
     );
   }
@@ -151,6 +155,37 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
+  Widget _getSpinRightButton(){
+    return RaisedButton.icon(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+      label: Text("Spin Right"),
+      color: Colors.white,
+      textColor: Colors.blue,
+      icon: Icon(Icons.rotate_right),
+      onPressed: () => vm..spinLeft(false)..spinRight(true),
+    );
+  }
+  Widget _getSpinLeftButton(){
+    return RaisedButton.icon(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+      label: Text("Spin Left"),
+      color: Colors.white,
+      textColor: Colors.blue,
+      icon: Icon(Icons.rotate_left),
+      onPressed: () => vm..spinRight(false)..spinLeft(true),
+    );
+  }
+  Widget _getCancelSpinButton(){
+    return RaisedButton.icon(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+      label: Text("Cancel Spin"),
+      color: Colors.white,
+      textColor: Colors.blue,
+      icon: Icon(Icons.cancel),
+      onPressed: () => vm..spinRight(false)..spinLeft(false),
+    );
+  }
+
   Widget _getBrake() {
     return GestureDetector(
       onTapDown: vm.brakePressed,
@@ -159,13 +194,13 @@ class _HomeViewState extends State<HomeView> {
       onLongPressEnd: (_) => vm.brakeReleased(null),
       // onTapCancel: () => vm.brakeReleased(null),
       child: Card(
-        color: vm.cardColor,
+        color: vm.isBraking ? Colors.red : Theme.of(context).cardColor,
         margin: EdgeInsets.zero,
         child: Padding(
           padding: const EdgeInsets.all(100),
           child: Text(
             "Brake",
-            style: TextStyle(fontSize: 20, color: Colors.black),
+            style: TextStyle(fontSize: 20),
           ),
         ),
       ),
@@ -178,7 +213,7 @@ class _HomeViewState extends State<HomeView> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
         _getBluetoothButton(),
-        _getToggleControlsButton(),
+        _getShowDataButton(),
         _getZeroControlsButton(),
       ],
     );
@@ -198,7 +233,7 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  Widget _getToggleControlsButton() {
+  Widget _getShowDataButton() {
     return RaisedButton.icon(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
       label: Text(vm.showControls ? "Show Data" : "Show Controls"),

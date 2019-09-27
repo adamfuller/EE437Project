@@ -1,11 +1,10 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'sensor_service.dart';
-import 'steering_service.dart';
+import 'steering_service.dart' as ss;
 import 'bluetooth_service.dart';
 
 const String deviceMacAddress = "98:D3:B1:F5:B3:BF";
@@ -22,12 +21,12 @@ class HomeViewModel {
   double _z = 0.0;
   double _xNorm, _yNorm, _zNorm;
   double _throttleValue = 5.0;
-  Map<int, int> previousState = {};
+  bool _isSpinningRight = false;
+  bool _isSpinningLeft = false;
 
   //
   // Public Properties
   //
-  Color cardColor = Colors.white;
   bool isConnected = false;
   String connectedAddress;
   bool showControls = true;
@@ -37,6 +36,7 @@ class HomeViewModel {
   bool isAcceptingInputs = true;
   bool isConnecting = false;
   bool useThrottleSlider = true;
+  bool isBraking = false;
 
   //
   // Getters
@@ -52,7 +52,16 @@ class HomeViewModel {
 
   double get throttleValue => _throttleValue;
 
-  List<String> get currentState => SteeringService.cache.entries.fold(<String>[], (list, e) => list..add(((e.key << 5) + e.value).toRadixString(2)));
+  List<String> get currentState {
+    if (isBraking){
+      return ss.SteeringService.brake.fold([], (l, val) => l..add(val.toRadixString(2).padLeft(8, '0')));
+    } else if (_isSpinningLeft){
+      return ss.SteeringService.spinLeft.fold([], (l, val) => l..add(val.toRadixString(2).padLeft(8, '0')));
+    } else if (_isSpinningRight){
+      return ss.SteeringService.spinRight.fold([], (l, val) => l..add(val.toRadixString(2).padLeft(8, '0')));
+    }
+    return ss.SteeringService.cacheCommands.fold([], (l, val) => l..add(val.toRadixString(2).padLeft(8, '0')));
+  }
 
   bool get isDebug {
     bool val = false;
@@ -79,16 +88,16 @@ class HomeViewModel {
 
         double throttleVal = (_throttleValue - throttleMax / 2.0) / (throttleMax / 2.0);
 
-        if (!useThrottleSlider){
-          if (y.abs() > _pi/2.0) {
+        if (!useThrottleSlider) {
+          if (y.abs() > _pi / 2.0) {
             // Use the sign of y
-            throttleVal = (y/y.abs());
+            throttleVal = (y / y.abs());
           } else {
-            throttleVal = y / (_pi/2.0);
+            throttleVal = y / (_pi / 2.0);
           }
         }
 
-        SteeringService.accept(x, y, z, throttleVal );
+        ss.SteeringService.accept(x, y, z, throttleVal);
         onDataChanged();
       },
     );
@@ -97,12 +106,24 @@ class HomeViewModel {
 
     this.btTimer = Timer.periodic(Duration(milliseconds: 50), (_) {
       if (!isAcceptingInputs) return;
-      Map<int, int> state = SteeringService.cache;
-      Uint8List commands = Uint8List.fromList(state.entries.fold(<int>[], (list, e) => list..add((e.key << 5) + e.value)));
+      if (isBraking) {
+        BluetoothService.sendData(connectedAddress, ss.SteeringService.brake);
+        return;
+      } else if (_isSpinningRight) {
+        BluetoothService.sendData(connectedAddress, ss.SteeringService.spinRight);
+        return;
+      } else if (_isSpinningLeft) {
+        BluetoothService.sendData(connectedAddress, ss.SteeringService.spinLeft);
+        return;
+      }
 
-      BluetoothService.sendData(connectedAddress, commands);
+      BluetoothService.sendData(connectedAddress, ss.SteeringService.cacheCommands);
     });
   }
+
+  //
+  //  Button Callbacks
+  //
 
   void bluetoothButtonPressed(BuildContext context) async {
     if (isConnected) {
@@ -130,7 +151,6 @@ class HomeViewModel {
       },
     );
 
-    previousState = {};
     SensorService.zero();
 
     if (!successfullyConnected) await showAlertDialog(context, "Error", "Failed connect to bluetooth device");
@@ -153,13 +173,12 @@ class HomeViewModel {
   }
 
   void brakePressed(TapDownDetails details) {
-    this.cardColor = Colors.red;
-    SteeringService.goNeutral();
+    isBraking = true;
     onDataChanged();
   }
 
   void brakeReleased(TapUpDetails details) {
-    this.cardColor = Colors.white;
+    isBraking = false;
     onDataChanged();
   }
 
@@ -176,7 +195,17 @@ class HomeViewModel {
 
   void zeroThrottlePressed() {
     _throttleValue = throttleMax / 2.0;
-    SteeringService.goNeutral();
+    ss.SteeringService.goNeutral();
+    onDataChanged();
+  }
+
+  void spinRight(bool val) {
+    _isSpinningRight = val;
+    onDataChanged();
+  }
+
+  void spinLeft(bool val) {
+    _isSpinningLeft = val;
     onDataChanged();
   }
 

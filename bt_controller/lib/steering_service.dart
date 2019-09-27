@@ -1,9 +1,13 @@
+import 'dart:typed_data';
+
 /// Class to convert SensorService's angle outputs into a command
 /// or string of commands to send over bluetooth.
 class SteeringService {
   static SteeringService _steeringService;
   static const double _pi = 3.14159265358979323846264;
-  static Map<int, int> _cache = {}; // Map of intent to an extent
+
+  // List of commands to be executed;
+  static Map<Intent, Extent> _cache = {};
 
   // How far can the device be turned without triggering differential steering.
   static const double steeringPlay = 0.1;
@@ -11,12 +15,33 @@ class SteeringService {
   // How far until the throttle kicks the car out of neutral.
   static const double throttlePlay = 0.05;
 
-  static const int rightForward = DriverConnection.in1;
-  static const int rightBackward = DriverConnection.in2;
-  static const int leftBackward = DriverConnection.in3;
-  static const int leftForward = DriverConnection.in4;
-  static const int rightPower = DriverConnection.enA;
-  static const int leftPower = DriverConnection.enB;
+  /// Map of intent to extent for braking.
+  static final Uint8List brake = Uint8List.fromList([
+    (Intent.leftForward.value << 5) | Extent.none.value,
+    (Intent.rightForward.value << 5) | Extent.none.value,
+    (Intent.leftBackward.value << 5) | Extent.none.value,
+    (Intent.rightBackward.value << 5) | Extent.none.value,
+    (Intent.leftPower.value << 5) | Extent.none.value,
+    (Intent.rightPower.value << 5) | Extent.none.value,
+  ]);
+
+  static final Uint8List spinLeft = Uint8List.fromList([
+    (Intent.leftForward.value << 5) | Extent.none.value,
+    (Intent.rightForward.value << 5) | Extent.max.value,
+    (Intent.leftBackward.value << 5) | Extent.max.value,
+    (Intent.rightBackward.value << 5) | Extent.none.value,
+    (Intent.leftPower.value << 5) | Extent.max.value,
+    (Intent.rightPower.value << 5) | Extent.max.value,
+  ]);
+
+  static final Uint8List spinRight = Uint8List.fromList([
+    (Intent.leftForward.value << 5) | Extent.max.value,
+    (Intent.rightForward.value << 5) | Extent.none.value,
+    (Intent.leftBackward.value << 5) | Extent.none.value,
+    (Intent.rightBackward.value << 5) | Extent.max.value,
+    (Intent.leftPower.value << 5) | Extent.max.value,
+    (Intent.rightPower.value << 5) | Extent.max.value,
+  ]);
 
   static bool isInNeutral = true;
 
@@ -24,7 +49,14 @@ class SteeringService {
     return _steeringService;
   }
 
-  static Map<int, int> get cache => _cache; // Map of intent to an extent
+  /// Returns a Map of Intent to an Extent.
+  static Map<Intent, Extent> get cache => _cache;
+
+  /// Returns a list of bytes representing the cached commands.
+  static Uint8List get cacheCommands => Uint8List.fromList(_cache.entries.fold(<int>[], (l, com) => l..add(commandValue(com.key, com.value))));
+
+  /// Returns the byte value of the command for a set intent and extent.
+  static int commandValue(Intent i, Extent e) => (i.value << 5) | e.value;
 
   /// Caches a list of commands depending on the input values.
   ///
@@ -53,43 +85,54 @@ class SteeringService {
     // Set throttle between 0 and 1.
     throttle = throttle.abs();
 
-    int throttleBits = (throttle * 31).toInt();
-
     // Arbitrary strength or inside motor during turn
     double turnPower = throttle * (1 - z.abs() / (_pi / 2));
-    int turnPowerBits = (turnPower * 31).toInt();
 
     // Set the opposite directions to 0 power.
-    _cache[(isForward ? leftBackward : leftForward)] = 0;
-    _cache[(isForward ? rightBackward : rightForward)] = 0;
+    _cache[(isForward ? Intent.leftBackward : Intent.leftForward)] = Extent.none;
+    _cache[(isForward ? Intent.rightBackward : Intent.rightForward)] = Extent.none;
 
-    _cache[(isForward ? leftForward : leftBackward)] = 31;
-    _cache[(isForward ? rightForward : rightBackward)] = 31;
+    _cache[(isForward ? Intent.leftForward : Intent.leftBackward)] = Extent.max;
+    _cache[(isForward ? Intent.rightForward : Intent.rightBackward)] = Extent.max;
 
-    if (isStraight) {
-      _cache[leftPower] = throttleBits;
-      _cache[rightPower] = throttleBits;
-    } else if (turnPower > 0) {
-      // Making a turn.
-      if (isTurningLeft) {
-        _cache[leftPower] = turnPowerBits;
-        _cache[rightPower] = throttleBits;
-      } else if (isTurningRight) {
-        _cache[leftPower] = throttleBits;
-        _cache[rightPower] = turnPowerBits;
-      } else {
-        // This shouldn't happen.
-      }
-    }
-
+    _cache[Intent.leftPower] = Extent.fromUnit((isTurningLeft ? turnPower : throttle));
+    _cache[Intent.rightPower] = Extent.fromUnit((isTurningRight ? turnPower : throttle));
   }
 
   /// Adds low left and right power to the cache.
   static void goNeutral() {
     isInNeutral = true;
-    _cache[leftPower] = 0;
-    _cache[rightPower] = 0;
+    _cache[Intent.leftPower] = Extent.none;
+    _cache[Intent.rightPower] = Extent.none;
   }
+
+
+}
+
+class Extent {
+  static const Extent max = Extent(maxValue);
+  static const Extent none = Extent(0);
+  static const maxValue = 31;
+
+  final int value;
+
+  const Extent(this.value);
+
+  /// Returns an extent with a value of __val__ * __Extent.maxValue__
+  factory Extent.fromUnit(double val) => Extent(((val % 1.0) * maxValue).toInt());
+}
+
+class Intent {
+  static const Intent rightForward = Intent(DriverConnection.in1);
+  static const Intent rightBackward = Intent(DriverConnection.in2);
+  static const Intent leftBackward = Intent(DriverConnection.in3);
+  static const Intent leftForward = Intent(DriverConnection.in4);
+  static const Intent rightPower = Intent(DriverConnection.enA);
+  static const Intent leftPower = Intent(DriverConnection.enB);
+
+  final int value;
+
+  const Intent(this.value);
 }
 
 class DriverConnection {
