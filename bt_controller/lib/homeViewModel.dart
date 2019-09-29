@@ -140,14 +140,8 @@ class HomeViewModel {
     bool successfullyConnected = await BluetoothService.listen(
       deviceMacAddress,
       (address, data) {
-        // print("Do something here!!!!");
-        // print(String.fromCharCodes(data.toList()));
         btListen += String.fromCharCodes(data.toList());
-        while (btListen.contains("\n")) {
-          print(btListen.substring(0, btListen.indexOf("\n")));
-          btListen = btListen.substring(btListen.indexOf("\n") + 1);
-        }
-        // print(btListen.length);
+        while (btListen.contains("\n")) btListen = btListen.substring(btListen.indexOf("\n") + 1);
       },
     );
 

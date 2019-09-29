@@ -15,33 +15,14 @@ class SteeringService {
   // How far until the throttle kicks the car out of neutral.
   static const double throttlePlay = 0.05;
 
-  /// Map of intent to extent for braking.
-  static final Uint8List brake = Uint8List.fromList([
-    (Intent.leftForward.value << 5) | Extent.none.value,
-    (Intent.rightForward.value << 5) | Extent.none.value,
-    (Intent.leftBackward.value << 5) | Extent.none.value,
-    (Intent.rightBackward.value << 5) | Extent.none.value,
-    (Intent.leftPower.value << 5) | Extent.none.value,
-    (Intent.rightPower.value << 5) | Extent.none.value,
-  ]);
+  /// List with command for braking.
+  static final Uint8List brake = Uint8List.fromList([0xE0]);
 
-  static final Uint8List spinLeft = Uint8List.fromList([
-    (Intent.leftForward.value << 5) | Extent.none.value,
-    (Intent.rightForward.value << 5) | Extent.max.value,
-    (Intent.leftBackward.value << 5) | Extent.max.value,
-    (Intent.rightBackward.value << 5) | Extent.none.value,
-    (Intent.leftPower.value << 5) | Extent.max.value,
-    (Intent.rightPower.value << 5) | Extent.max.value,
-  ]);
+  /// List with command for spinning right
+  static final Uint8List spinRight = Uint8List.fromList([0xE1]);
 
-  static final Uint8List spinRight = Uint8List.fromList([
-    (Intent.leftForward.value << 5) | Extent.max.value,
-    (Intent.rightForward.value << 5) | Extent.none.value,
-    (Intent.leftBackward.value << 5) | Extent.none.value,
-    (Intent.rightBackward.value << 5) | Extent.max.value,
-    (Intent.leftPower.value << 5) | Extent.max.value,
-    (Intent.rightPower.value << 5) | Extent.max.value,
-  ]);
+  /// List with command for spinning left
+  static final Uint8List spinLeft = Uint8List.fromList([0xE2]);
 
   static bool isInNeutral = true;
 
@@ -105,8 +86,6 @@ class SteeringService {
     _cache[Intent.leftPower] = Extent.none;
     _cache[Intent.rightPower] = Extent.none;
   }
-
-
 }
 
 class Extent {
@@ -119,7 +98,7 @@ class Extent {
   const Extent(this.value);
 
   /// Returns an extent with a value of __val__ * __Extent.maxValue__
-  factory Extent.fromUnit(double val) => Extent(((val % 1.0) * maxValue).toInt());
+  factory Extent.fromUnit(double val) => val >= 1.0 ? Extent.max : Extent(((val % 1.0) * maxValue).toInt());
 }
 
 class Intent {
