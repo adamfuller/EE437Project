@@ -13807,7 +13807,7 @@ Source: www.kingbright.com</description>
 <part name="D7" library="diode" library_urn="urn:adsk.eagle:library:210" deviceset="1N4004" device="" package3d_urn="urn:adsk.eagle:package:43336/1"/>
 <part name="D8" library="diode" library_urn="urn:adsk.eagle:library:210" deviceset="1N4004" device="" package3d_urn="urn:adsk.eagle:package:43336/1"/>
 <part name="EN" library="con-amp" library_urn="urn:adsk.eagle:library:127" deviceset="MTA02-156" device="" package3d_urn="urn:adsk.eagle:package:8081562/1"/>
-<part name="J2" library="con-amp" library_urn="urn:adsk.eagle:library:127" deviceset="MTA02-156" device="" package3d_urn="urn:adsk.eagle:package:8081562/1"/>
+<part name="VIN" library="con-amp" library_urn="urn:adsk.eagle:library:127" deviceset="MTA02-156" device="" package3d_urn="urn:adsk.eagle:package:8081562/1"/>
 <part name="OUT1" library="con-amp" library_urn="urn:adsk.eagle:library:127" deviceset="MTA02-156" device="" package3d_urn="urn:adsk.eagle:package:8081562/1"/>
 <part name="OUT2" library="con-amp" library_urn="urn:adsk.eagle:library:127" deviceset="MTA02-156" device="" package3d_urn="urn:adsk.eagle:package:8081562/1"/>
 <part name="IN" library="con-amp" library_urn="urn:adsk.eagle:library:127" deviceset="MTA04-156" device="" package3d_urn="urn:adsk.eagle:package:8081564/1"/>
@@ -13888,7 +13888,7 @@ Source: www.kingbright.com</description>
 <attribute name="NAME" x="116.84" y="60.96" size="1.778" layer="95" rot="R90"/>
 <attribute name="VALUE" x="120.65" y="60.96" size="1.778" layer="96" rot="R90"/>
 </instance>
-<instance part="J2" gate="G$1" x="119.38" y="10.16" smashed="yes" rot="R90">
+<instance part="VIN" gate="G$1" x="119.38" y="10.16" smashed="yes" rot="R90">
 <attribute name="NAME" x="119.38" y="15.24" size="1.778" layer="95" rot="R90"/>
 <attribute name="VALUE" x="123.19" y="15.24" size="1.778" layer="96" rot="R90"/>
 </instance>
@@ -14187,7 +14187,7 @@ Source: www.kingbright.com</description>
 </net>
 <net name="N$27" class="0">
 <segment>
-<pinref part="J2" gate="G$1" pin="2"/>
+<pinref part="VIN" gate="G$1" pin="2"/>
 <pinref part="VREG" gate="G$1" pin="VIN"/>
 <wire x1="127" y1="12.7" x2="121.92" y2="12.7" width="0.1524" layer="91"/>
 </segment>
@@ -14263,7 +14263,7 @@ Source: www.kingbright.com</description>
 <segment>
 <pinref part="J6" gate="G$1" pin="1"/>
 <wire x1="198.12" y1="-15.24" x2="198.12" y2="-22.86" width="0.1524" layer="91"/>
-<pinref part="J2" gate="G$1" pin="1"/>
+<pinref part="VIN" gate="G$1" pin="1"/>
 <wire x1="198.12" y1="-22.86" x2="121.92" y2="-22.86" width="0.1524" layer="91"/>
 <wire x1="121.92" y1="-22.86" x2="121.92" y2="10.16" width="0.1524" layer="91"/>
 <wire x1="198.12" y1="-15.24" x2="246.38" y2="-15.24" width="0.1524" layer="91"/>
