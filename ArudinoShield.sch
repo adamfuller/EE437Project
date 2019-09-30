@@ -13817,7 +13817,7 @@ Source: www.kingbright.com</description>
 <part name="LED1" library="led" library_urn="urn:adsk.eagle:library:259" deviceset="LED" device="5MM" package3d_urn="urn:adsk.eagle:package:15799/2"/>
 <part name="J6" library="con-amp" library_urn="urn:adsk.eagle:library:127" deviceset="MTA03-100" device="" package3d_urn="urn:adsk.eagle:package:8081621/1"/>
 <part name="JP1" library="jumper" library_urn="urn:adsk.eagle:library:252" deviceset="JP1E" device="" package3d_urn="urn:adsk.eagle:package:15455/1"/>
-<part name="IC3" library="burr-brown" library_urn="urn:adsk.eagle:library:111" deviceset="REG1117" device="" package3d_urn="urn:adsk.eagle:package:4940/1"/>
+<part name="VREG" library="burr-brown" library_urn="urn:adsk.eagle:library:111" deviceset="REG1117" device="" package3d_urn="urn:adsk.eagle:package:4940/1"/>
 </parts>
 <sheets>
 <sheet>
@@ -13928,7 +13928,7 @@ Source: www.kingbright.com</description>
 <attribute name="NAME" x="210.82" y="-6.35" size="1.778" layer="95"/>
 <attribute name="VALUE" x="210.82" y="-13.335" size="1.778" layer="96"/>
 </instance>
-<instance part="IC3" gate="G$1" x="139.7" y="12.7" smashed="yes">
+<instance part="VREG" gate="G$1" x="139.7" y="12.7" smashed="yes">
 <attribute name="NAME" x="132.08" y="18.415" size="1.778" layer="95" ratio="10"/>
 <attribute name="VALUE" x="134.62" y="15.24" size="1.778" layer="96" ratio="10"/>
 </instance>
@@ -14182,13 +14182,13 @@ Source: www.kingbright.com</description>
 <wire x1="218.44" y1="-12.7" x2="208.28" y2="-12.7" width="0.1524" layer="91"/>
 <pinref part="JP1" gate="A" pin="2"/>
 <wire x1="208.28" y1="-12.7" x2="208.28" y2="-10.16" width="0.1524" layer="91"/>
-<pinref part="IC3" gate="G$1" pin="VOUT"/>
+<pinref part="VREG" gate="G$1" pin="VOUT"/>
 </segment>
 </net>
 <net name="N$27" class="0">
 <segment>
 <pinref part="J2" gate="G$1" pin="2"/>
-<pinref part="IC3" gate="G$1" pin="VIN"/>
+<pinref part="VREG" gate="G$1" pin="VIN"/>
 <wire x1="127" y1="12.7" x2="121.92" y2="12.7" width="0.1524" layer="91"/>
 </segment>
 </net>
@@ -14249,7 +14249,7 @@ Source: www.kingbright.com</description>
 <wire x1="162.56" y1="30.48" x2="175.26" y2="30.48" width="0.1524" layer="91"/>
 <wire x1="175.26" y1="30.48" x2="175.26" y2="-12.7" width="0.1524" layer="91"/>
 <junction x="175.26" y="-12.7"/>
-<pinref part="IC3" gate="G$1" pin="GND"/>
+<pinref part="VREG" gate="G$1" pin="GND"/>
 </segment>
 </net>
 <net name="N$30" class="0">
