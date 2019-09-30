@@ -1,4 +1,3 @@
-#define RECV_PIN  12
 #define ECHO_PIN  A4  
 #define TRIG_PIN  A5
 #define ENA_PIN  5
