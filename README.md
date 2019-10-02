@@ -6,3 +6,11 @@ Autonomous robot car with a smartphone interface
 
 # Custom Shield Schematic
 <img src="/schematic.png" width="922" height="466">
+
+# Custom Shield Manufacturing Preview
+
+## Top
+<img src="/preview_top.png" width="881" height="717">
+
+## Bottom
+<img src="/preview_top.png" width="881" height="717">
