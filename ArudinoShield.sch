@@ -11561,7 +11561,7 @@ Source: www.kingbright.com</description>
 <part name="C2" library="rcl" library_urn="urn:adsk.eagle:library:334" deviceset="C-US" device="050-024X044" package3d_urn="urn:adsk.eagle:package:23643/1" value="220uF/35V"/>
 <part name="R3" library="rcl" library_urn="urn:adsk.eagle:library:334" deviceset="R-US_" device="0207/10" package3d_urn="urn:adsk.eagle:package:23491/2" value="1k"/>
 <part name="LED1" library="led" library_urn="urn:adsk.eagle:library:259" deviceset="LED" device="5MM" package3d_urn="urn:adsk.eagle:package:15799/2"/>
-<part name="VREG" library="burr-brown" library_urn="urn:adsk.eagle:library:111" deviceset="REG1117" device="" package3d_urn="urn:adsk.eagle:package:4940/1"/>
+<part name="U1" library="burr-brown" library_urn="urn:adsk.eagle:library:111" deviceset="REG1117" device="" package3d_urn="urn:adsk.eagle:package:4940/1"/>
 <part name="VIN" library="con-amp" library_urn="urn:adsk.eagle:library:127" deviceset="MTA02-156" device="" package3d_urn="urn:adsk.eagle:package:8081562/1"/>
 <part name="OUT3" library="con-amp" library_urn="urn:adsk.eagle:library:127" deviceset="MTA02-156" device="" package3d_urn="urn:adsk.eagle:package:8081562/1"/>
 <part name="OUT4" library="con-amp" library_urn="urn:adsk.eagle:library:127" deviceset="MTA02-156" device="" package3d_urn="urn:adsk.eagle:package:8081562/1"/>
@@ -11643,7 +11643,7 @@ Source: www.kingbright.com</description>
 <attribute name="NAME" x="171.196" y="-4.572" size="1.778" layer="95" rot="R90"/>
 <attribute name="VALUE" x="173.355" y="-4.572" size="1.778" layer="96" rot="R90"/>
 </instance>
-<instance part="VREG" gate="G$1" x="139.7" y="12.7" smashed="yes">
+<instance part="U1" gate="G$1" x="139.7" y="12.7" smashed="yes">
 <attribute name="NAME" x="132.08" y="18.415" size="1.778" layer="95" ratio="10"/>
 <attribute name="VALUE" x="134.62" y="15.24" size="1.778" layer="96" ratio="10"/>
 </instance>
@@ -11870,7 +11870,7 @@ Source: www.kingbright.com</description>
 <wire x1="162.56" y1="30.48" x2="175.26" y2="30.48" width="0.1524" layer="91"/>
 <wire x1="175.26" y1="30.48" x2="175.26" y2="-12.7" width="0.1524" layer="91"/>
 <junction x="175.26" y="-12.7"/>
-<pinref part="VREG" gate="G$1" pin="GND"/>
+<pinref part="U1" gate="G$1" pin="GND"/>
 <pinref part="B1" gate="G$1" pin="GND@1"/>
 <wire x1="50.8" y1="33.02" x2="45.72" y2="33.02" width="0.1524" layer="91"/>
 <wire x1="45.72" y1="33.02" x2="45.72" y2="30.48" width="0.1524" layer="91"/>
@@ -11943,7 +11943,7 @@ Source: www.kingbright.com</description>
 <wire x1="246.38" y1="-15.24" x2="246.38" y2="93.98" width="0.8128" layer="91"/>
 <wire x1="246.38" y1="93.98" x2="215.9" y2="93.98" width="0.8128" layer="91"/>
 <junction x="215.9" y="93.98"/>
-<pinref part="VREG" gate="G$1" pin="VIN"/>
+<pinref part="U1" gate="G$1" pin="VIN"/>
 <wire x1="127" y1="12.7" x2="121.92" y2="12.7" width="0.8128" layer="91"/>
 <pinref part="IC1" gate="L298" pin="VS"/>
 <wire x1="160.02" y1="63.5" x2="160.02" y2="93.98" width="0.8128" layer="91"/>
@@ -11970,7 +11970,7 @@ Source: www.kingbright.com</description>
 <wire x1="157.48" y1="12.7" x2="152.4" y2="12.7" width="0.1524" layer="91"/>
 <wire x1="157.48" y1="10.16" x2="157.48" y2="12.7" width="0.1524" layer="91"/>
 <junction x="157.48" y="12.7"/>
-<pinref part="VREG" gate="G$1" pin="VOUT"/>
+<pinref part="U1" gate="G$1" pin="VOUT"/>
 <pinref part="B1" gate="G$1" pin="VIN"/>
 <wire x1="50.8" y1="45.72" x2="38.1" y2="45.72" width="0.1524" layer="91"/>
 <wire x1="38.1" y1="45.72" x2="38.1" y2="12.7" width="0.1524" layer="91"/>
