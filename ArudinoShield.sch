@@ -14072,7 +14072,6 @@ Source: www.kingbright.com</description>
 <junction x="83.82" y="17.78"/>
 <pinref part="HC05" gate="A" pin="3"/>
 <wire x1="114.3" y1="73.66" x2="109.22" y2="73.66" width="0.1524" layer="91"/>
-<label x="50.8" y="17.78" size="1.6764" layer="95"/>
 </segment>
 </net>
 <net name="VIN" class="0">
