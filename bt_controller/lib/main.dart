@@ -7,17 +7,12 @@ void main() {
     DeviceOrientation.landscapeLeft,
   ]);
   SystemChrome.setEnabledSystemUIOverlays([]);
-  runApp(AppWrapper());
-}
-
-class AppWrapper extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
+  runApp(
+    MaterialApp(
       title: 'EE 437 Controller',
       theme: ThemeData(brightness: Brightness.light),
       home: HomeView(),
       debugShowCheckedModeBanner: false,
-    );
-  }
+    ),
+  );
 }
