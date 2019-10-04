@@ -2,15 +2,15 @@
 Autonomous robot car with a smartphone interface
 
 # Custom Shield Board
-<img src="/board.png" width="50%">
+<img src="/images/board.png" width="50%">
 
 # Custom Shield Schematic
-<img src="/schematic.png" width="100%">
+<img src="/images/schematic.png" width="100%">
 
 # Custom Shield Manufacturing Preview
 
 ## Top
-<img src="/preview_top.png" width="50%">
+<img src="/images/preview_top.png" width="50%">
 
 ## Bottom
-<img src="/preview_bottom.png" width="50%">
+<img src="/images/preview_bottom.png" width="50%">
