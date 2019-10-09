@@ -23,11 +23,13 @@ class HomeViewModel {
   //
   // Public Properties
   //
+  
   /// True if the phone is connected to a device.
   bool isConnected = false;
 
   /// Currently connected MAC address.
   String connectedAddress;
+
   /// False if showing the sensor data, true if showing the brake button.
   bool showControls = true;
 
@@ -155,11 +157,11 @@ class HomeViewModel {
         btListen += String.fromCharCodes(data.toList());
         while (btListen.contains("\n")) btListen = btListen.substring(btListen.indexOf("\n") + 1);
       },
-      onDisconnect: (){
+      onDisconnect: () {
         _showAlertDialog(context, "Disconnected", "You have been disconnected from the bluetooth device");
         this.isConnected = false;
         onDataChanged();
-      }
+      },
     );
 
     SensorService.zero();
