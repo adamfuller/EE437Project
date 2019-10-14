@@ -1,6 +1,12 @@
 # EE437Project
 Autonomous robot car with a smartphone interface
 
+# TODO
+- [ ] Code for servo
+- [ ] Add screw holes to board
+- [ ] Incorporate Arduino IC into board
+- [ ] Add signal lights (forward, backward)
+
 # Custom Shield Board
 <img src="/images/board.png" width="50%">
 
