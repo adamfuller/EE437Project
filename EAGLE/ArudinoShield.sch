@@ -12017,14 +12017,11 @@ Type: &lt;b&gt;SPC4077 / SPC 4078&lt;/b&gt;&lt;p&gt;</description>
 </net>
 <net name="+5V" class="0">
 <segment>
-<pinref part="B1" gate="G$1" pin="5V"/>
-<wire x1="50.8" y1="43.18" x2="45.72" y2="43.18" width="0.1524" layer="91"/>
 <wire x1="45.72" y1="43.18" x2="27.94" y2="43.18" width="0.1524" layer="91"/>
 <wire x1="27.94" y1="43.18" x2="25.4" y2="43.18" width="0.1524" layer="91"/>
 <wire x1="25.4" y1="43.18" x2="25.4" y2="55.88" width="0.1524" layer="91"/>
 <wire x1="114.3" y1="76.2" x2="45.72" y2="76.2" width="0.1524" layer="91"/>
 <wire x1="45.72" y1="76.2" x2="45.72" y2="43.18" width="0.1524" layer="91"/>
-<junction x="45.72" y="43.18"/>
 <pinref part="HC-SR04" gate="A" pin="1"/>
 <wire x1="25.4" y1="55.88" x2="20.32" y2="55.88" width="0.1524" layer="91"/>
 <label x="30.48" y="43.18" size="1.6764" layer="95"/>
@@ -12033,6 +12030,28 @@ Type: &lt;b&gt;SPC4077 / SPC 4078&lt;/b&gt;&lt;p&gt;</description>
 <wire x1="20.32" y1="27.94" x2="27.94" y2="27.94" width="0.1524" layer="91"/>
 <wire x1="27.94" y1="27.94" x2="27.94" y2="43.18" width="0.1524" layer="91"/>
 <junction x="27.94" y="43.18"/>
+</segment>
+<segment>
+<pinref part="R3" gate="G$1" pin="2"/>
+<pinref part="C2" gate="G$1" pin="1"/>
+<wire x1="157.48" y1="12.7" x2="152.4" y2="12.7" width="0.1524" layer="91"/>
+<wire x1="157.48" y1="10.16" x2="157.48" y2="12.7" width="0.1524" layer="91"/>
+<junction x="157.48" y="12.7"/>
+<pinref part="U1" gate="G$1" pin="VOUT"/>
+<pinref part="B1" gate="G$1" pin="VIN"/>
+<wire x1="50.8" y1="45.72" x2="38.1" y2="45.72" width="0.1524" layer="91"/>
+<wire x1="38.1" y1="45.72" x2="38.1" y2="12.7" width="0.1524" layer="91"/>
+<wire x1="38.1" y1="12.7" x2="119.38" y2="12.7" width="0.1524" layer="91"/>
+<wire x1="119.38" y1="12.7" x2="119.38" y2="22.86" width="0.1524" layer="91"/>
+<wire x1="119.38" y1="22.86" x2="157.48" y2="22.86" width="0.1524" layer="91"/>
+<wire x1="157.48" y1="22.86" x2="157.48" y2="12.7" width="0.1524" layer="91"/>
+<wire x1="157.48" y1="12.7" x2="167.64" y2="12.7" width="0.1524" layer="91"/>
+<wire x1="167.64" y1="12.7" x2="167.64" y2="71.12" width="0.1524" layer="91"/>
+<wire x1="167.64" y1="71.12" x2="129.54" y2="71.12" width="0.1524" layer="91"/>
+<pinref part="IC1" gate="L298" pin="VCC"/>
+<wire x1="129.54" y1="71.12" x2="129.54" y2="63.5" width="0.1524" layer="91"/>
+<label x="157.48" y="15.24" size="1.778" layer="95"/>
+<junction x="167.64" y="12.7"/>
 </segment>
 </net>
 <net name="GND" class="0">
@@ -12189,33 +12208,9 @@ Type: &lt;b&gt;SPC4077 / SPC 4078&lt;/b&gt;&lt;p&gt;</description>
 <pinref part="9G" gate="A" pin="1"/>
 <wire x1="20.32" y1="25.4" x2="78.74" y2="25.4" width="0.1524" layer="91"/>
 <label x="25.4" y="22.86" size="1.778" layer="95"/>
-<wire x1="78.74" y1="25.4" x2="78.74" y2="60.96" width="0.1524" layer="91"/>
-<pinref part="B1" gate="G$1" pin="*D3"/>
-<wire x1="78.74" y1="60.96" x2="76.2" y2="60.96" width="0.1524" layer="91"/>
-</segment>
-</net>
-<net name="+5VIN" class="0">
-<segment>
-<pinref part="R3" gate="G$1" pin="2"/>
-<pinref part="C2" gate="G$1" pin="1"/>
-<wire x1="157.48" y1="12.7" x2="152.4" y2="12.7" width="0.1524" layer="91"/>
-<wire x1="157.48" y1="10.16" x2="157.48" y2="12.7" width="0.1524" layer="91"/>
-<junction x="157.48" y="12.7"/>
-<pinref part="U1" gate="G$1" pin="VOUT"/>
-<pinref part="B1" gate="G$1" pin="VIN"/>
-<wire x1="50.8" y1="45.72" x2="38.1" y2="45.72" width="0.1524" layer="91"/>
-<wire x1="38.1" y1="45.72" x2="38.1" y2="12.7" width="0.1524" layer="91"/>
-<wire x1="38.1" y1="12.7" x2="119.38" y2="12.7" width="0.1524" layer="91"/>
-<wire x1="119.38" y1="12.7" x2="119.38" y2="22.86" width="0.1524" layer="91"/>
-<wire x1="119.38" y1="22.86" x2="157.48" y2="22.86" width="0.1524" layer="91"/>
-<wire x1="157.48" y1="22.86" x2="157.48" y2="12.7" width="0.1524" layer="91"/>
-<wire x1="157.48" y1="12.7" x2="167.64" y2="12.7" width="0.1524" layer="91"/>
-<wire x1="167.64" y1="12.7" x2="167.64" y2="71.12" width="0.1524" layer="91"/>
-<wire x1="167.64" y1="71.12" x2="129.54" y2="71.12" width="0.1524" layer="91"/>
-<pinref part="IC1" gate="L298" pin="VCC"/>
-<wire x1="129.54" y1="71.12" x2="129.54" y2="63.5" width="0.1524" layer="91"/>
-<label x="157.48" y="15.24" size="1.778" layer="95"/>
-<junction x="167.64" y="12.7"/>
+<wire x1="78.74" y1="25.4" x2="78.74" y2="55.88" width="0.1524" layer="91"/>
+<pinref part="B1" gate="G$1" pin="*D5"/>
+<wire x1="76.2" y1="55.88" x2="78.74" y2="55.88" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="IN1" class="0">
