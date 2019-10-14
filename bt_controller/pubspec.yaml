@@ -1,5 +1,5 @@
 name: bt_controller
-description: A new Flutter project.
+description: A bluetooth controller for a custom arduino shield.
 
 version: 1.0.0+1
 
