@@ -4,9 +4,9 @@
 #define ENB_PIN  9  // Power
 #define IN1_PIN  12 // Right forward
 #define IN2_PIN  10 // Right backward
-#define IN3_PIN  8 // Left backward
-#define IN4_PIN  7 // Left forward
-#define SERVO 3    // Servo control
+#define IN3_PIN  8  // Left backward
+#define IN4_PIN  7  // Left forward
+#define SERVO 3     // Servo control
 
 int pinToChange;
 int btOutput;
