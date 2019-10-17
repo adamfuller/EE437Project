@@ -3,8 +3,8 @@ Autonomous robot car with a smartphone interface
 
 # TODO
 - [ ] Code for servo
-- [ ] Add screw holes to board
-- [ ] Incorporate Arduino IC into board
+- [x] Add screw holes to board (Adam - 10/16)
+- [x] Incorporate Arduino IC into board (Adam - 10/15)
 - [ ] Add signal lights (forward, backward)
 
 # Custom Shield Board
