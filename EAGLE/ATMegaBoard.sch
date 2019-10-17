@@ -11306,10 +11306,10 @@ Type: &lt;b&gt;SPC4077 / SPC 4078&lt;/b&gt;&lt;p&gt;</description>
 <part name="R1" library="rcl" library_urn="urn:adsk.eagle:library:334" deviceset="R-US_" device="0207/10" package3d_urn="urn:adsk.eagle:package:23491/2" value="1k"/>
 <part name="LED1" library="led" library_urn="urn:adsk.eagle:library:259" deviceset="LED" device="5MM" package3d_urn="urn:adsk.eagle:package:15799/2"/>
 <part name="VIN" library="con-jack" library_urn="urn:adsk.eagle:library:154" deviceset="JACK-PLUG" device="1" package3d_urn="urn:adsk.eagle:package:7494/1"/>
-<part name="J1" library="adafruit" deviceset="1X2" device="-3.5MM"/>
-<part name="J2" library="adafruit" deviceset="1X2" device="-3.5MM"/>
-<part name="J3" library="adafruit" deviceset="1X2" device="-3.5MM"/>
-<part name="J4" library="adafruit" deviceset="1X2" device="-3.5MM"/>
+<part name="OUT1" library="adafruit" deviceset="1X2" device="-3.5MM"/>
+<part name="OUT2" library="adafruit" deviceset="1X2" device="-3.5MM"/>
+<part name="OUT3" library="adafruit" deviceset="1X2" device="-3.5MM"/>
+<part name="OUT4" library="adafruit" deviceset="1X2" device="-3.5MM"/>
 <part name="D1" library="adafruit" deviceset="1N4004" device=""/>
 <part name="D2" library="adafruit" deviceset="1N4004" device=""/>
 <part name="D3" library="adafruit" deviceset="1N4004" device=""/>
@@ -11382,10 +11382,10 @@ Type: &lt;b&gt;SPC4077 / SPC 4078&lt;/b&gt;&lt;p&gt;</description>
 <attribute name="NAME" x="124.46" y="-25.4" size="1.778" layer="95" rot="R90"/>
 <attribute name="VALUE" x="134.62" y="-25.4" size="1.778" layer="96" rot="R90"/>
 </instance>
-<instance part="J1" gate="G$1" x="236.22" y="48.26" smashed="yes"/>
-<instance part="J2" gate="G$1" x="236.22" y="38.1" smashed="yes"/>
-<instance part="J3" gate="G$1" x="236.22" y="27.94" smashed="yes"/>
-<instance part="J4" gate="G$1" x="236.22" y="17.78" smashed="yes"/>
+<instance part="OUT1" gate="G$1" x="236.22" y="48.26" smashed="yes"/>
+<instance part="OUT2" gate="G$1" x="236.22" y="38.1" smashed="yes"/>
+<instance part="OUT3" gate="G$1" x="236.22" y="27.94" smashed="yes"/>
+<instance part="OUT4" gate="G$1" x="236.22" y="17.78" smashed="yes"/>
 <instance part="D1" gate="1" x="177.8" y="60.96" smashed="yes" rot="R90">
 <attribute name="NAME" x="177.3174" y="63.5" size="1.778" layer="95" rot="R90"/>
 <attribute name="VALUE" x="180.1114" y="63.5" size="1.778" layer="96" rot="R90"/>
@@ -11605,22 +11605,22 @@ Type: &lt;b&gt;SPC4077 / SPC 4078&lt;/b&gt;&lt;p&gt;</description>
 <junction x="144.78" y="-12.7"/>
 </segment>
 <segment>
-<pinref part="J1" gate="G$1" pin="2"/>
+<pinref part="OUT1" gate="G$1" pin="2"/>
 <wire x1="231.14" y1="48.26" x2="228.6" y2="48.26" width="0.1524" layer="91"/>
 <label x="228.6" y="48.26" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="J2" gate="G$1" pin="2"/>
+<pinref part="OUT2" gate="G$1" pin="2"/>
 <wire x1="231.14" y1="38.1" x2="228.6" y2="38.1" width="0.1524" layer="91"/>
 <label x="228.6" y="38.1" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="J3" gate="G$1" pin="2"/>
+<pinref part="OUT3" gate="G$1" pin="2"/>
 <wire x1="231.14" y1="27.94" x2="228.6" y2="27.94" width="0.1524" layer="91"/>
 <label x="228.6" y="27.94" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="J4" gate="G$1" pin="2"/>
+<pinref part="OUT4" gate="G$1" pin="2"/>
 <wire x1="231.14" y1="17.78" x2="228.6" y2="17.78" width="0.1524" layer="91"/>
 <label x="228.6" y="17.78" size="1.778" layer="95"/>
 </segment>
@@ -11806,7 +11806,7 @@ Type: &lt;b&gt;SPC4077 / SPC 4078&lt;/b&gt;&lt;p&gt;</description>
 <wire x1="162.56" y1="48.26" x2="167.64" y2="48.26" width="0.1524" layer="91"/>
 <label x="226.06" y="50.8" size="1.778" layer="95"/>
 <wire x1="167.64" y1="48.26" x2="167.64" y2="50.8" width="0.1524" layer="91"/>
-<pinref part="J1" gate="G$1" pin="1"/>
+<pinref part="OUT1" gate="G$1" pin="1"/>
 <wire x1="167.64" y1="50.8" x2="177.8" y2="50.8" width="0.1524" layer="91"/>
 <pinref part="D1" gate="1" pin="A"/>
 <wire x1="177.8" y1="50.8" x2="231.14" y2="50.8" width="0.1524" layer="91"/>
@@ -11819,7 +11819,7 @@ Type: &lt;b&gt;SPC4077 / SPC 4078&lt;/b&gt;&lt;p&gt;</description>
 <net name="OUT2" class="1">
 <segment>
 <pinref part="IC1" gate="L298" pin="OUT2"/>
-<pinref part="J2" gate="G$1" pin="1"/>
+<pinref part="OUT2" gate="G$1" pin="1"/>
 <wire x1="162.56" y1="45.72" x2="185.42" y2="45.72" width="0.1524" layer="91"/>
 <wire x1="185.42" y1="45.72" x2="231.14" y2="45.72" width="0.1524" layer="91"/>
 <wire x1="231.14" y1="45.72" x2="231.14" y2="40.64" width="0.1524" layer="91"/>
@@ -11837,7 +11837,7 @@ Type: &lt;b&gt;SPC4077 / SPC 4078&lt;/b&gt;&lt;p&gt;</description>
 <wire x1="162.56" y1="43.18" x2="193.04" y2="43.18" width="0.1524" layer="91"/>
 <wire x1="193.04" y1="43.18" x2="226.06" y2="43.18" width="0.1524" layer="91"/>
 <wire x1="226.06" y1="43.18" x2="226.06" y2="30.48" width="0.1524" layer="91"/>
-<pinref part="J3" gate="G$1" pin="1"/>
+<pinref part="OUT3" gate="G$1" pin="1"/>
 <wire x1="226.06" y1="30.48" x2="231.14" y2="30.48" width="0.1524" layer="91"/>
 <label x="162.56" y="43.18" size="1.778" layer="95"/>
 <pinref part="D7" gate="1" pin="C"/>
@@ -11853,7 +11853,7 @@ Type: &lt;b&gt;SPC4077 / SPC 4078&lt;/b&gt;&lt;p&gt;</description>
 <wire x1="162.56" y1="40.64" x2="200.66" y2="40.64" width="0.1524" layer="91"/>
 <wire x1="200.66" y1="40.64" x2="223.52" y2="40.64" width="0.1524" layer="91"/>
 <wire x1="223.52" y1="40.64" x2="223.52" y2="20.32" width="0.1524" layer="91"/>
-<pinref part="J4" gate="G$1" pin="1"/>
+<pinref part="OUT4" gate="G$1" pin="1"/>
 <wire x1="223.52" y1="20.32" x2="231.14" y2="20.32" width="0.1524" layer="91"/>
 <label x="162.56" y="40.64" size="1.778" layer="95"/>
 <pinref part="D8" gate="1" pin="C"/>
