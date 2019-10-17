@@ -11288,7 +11288,7 @@ W = angled&lt;p&gt;
 <part name="C4" library="rcl" library_urn="urn:adsk.eagle:library:334" deviceset="C-US" device="050-024X044" package3d_urn="urn:adsk.eagle:package:23643/1" value="220uF"/>
 <part name="R2" library="rcl" library_urn="urn:adsk.eagle:library:334" deviceset="R-US_" device="0207/10" package3d_urn="urn:adsk.eagle:package:23491/2" value="2k"/>
 <part name="R3" library="rcl" library_urn="urn:adsk.eagle:library:334" deviceset="R-US_" device="0207/10" package3d_urn="urn:adsk.eagle:package:23491/2" value="1k"/>
-<part name="SV1" library="con-lsta" library_urn="urn:adsk.eagle:library:161" deviceset="FE06W" device="" package3d_urn="urn:adsk.eagle:package:8198/1"/>
+<part name="HC05" library="con-lsta" library_urn="urn:adsk.eagle:library:161" deviceset="FE06W" device="" package3d_urn="urn:adsk.eagle:package:8198/1"/>
 </parts>
 <sheets>
 <sheet>
@@ -11394,7 +11394,7 @@ W = angled&lt;p&gt;
 <attribute name="NAME" x="95.25" y="-21.8186" size="1.778" layer="95" rot="R180"/>
 <attribute name="VALUE" x="95.25" y="-17.018" size="1.778" layer="96" rot="R180"/>
 </instance>
-<instance part="SV1" gate="G$1" x="109.22" y="-15.24" smashed="yes" rot="R180">
+<instance part="HC05" gate="G$1" x="109.22" y="-15.24" smashed="yes" rot="R180">
 <attribute name="VALUE" x="110.49" y="-5.08" size="1.778" layer="96" rot="R180"/>
 <attribute name="NAME" x="110.49" y="-26.162" size="1.778" layer="95" rot="R180"/>
 </instance>
@@ -11447,7 +11447,7 @@ W = angled&lt;p&gt;
 <label x="88.9" y="53.34" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="SV1" gate="G$1" pin="4"/>
+<pinref part="HC05" gate="G$1" pin="4"/>
 <wire x1="101.6" y1="-17.78" x2="96.52" y2="-17.78" width="0.1524" layer="91"/>
 <label x="96.52" y="-17.78" size="1.778" layer="95"/>
 </segment>
@@ -11496,7 +11496,7 @@ W = angled&lt;p&gt;
 <junction x="162.56" y="2.54"/>
 </segment>
 <segment>
-<pinref part="SV1" gate="G$1" pin="2"/>
+<pinref part="HC05" gate="G$1" pin="2"/>
 <wire x1="101.6" y1="-12.7" x2="96.52" y2="-12.7" width="0.1524" layer="91"/>
 <label x="96.52" y="-12.7" size="1.778" layer="95"/>
 </segment>
@@ -11616,7 +11616,7 @@ W = angled&lt;p&gt;
 <label x="86.36" y="-33.02" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="SV1" gate="G$1" pin="3"/>
+<pinref part="HC05" gate="G$1" pin="3"/>
 <wire x1="101.6" y1="-15.24" x2="96.52" y2="-15.24" width="0.1524" layer="91"/>
 <label x="96.52" y="-15.24" size="1.778" layer="95"/>
 </segment>
@@ -11833,7 +11833,7 @@ W = angled&lt;p&gt;
 </net>
 <net name="PIN5HC05" class="0">
 <segment>
-<pinref part="SV1" gate="G$1" pin="5"/>
+<pinref part="HC05" gate="G$1" pin="5"/>
 <wire x1="101.6" y1="-20.32" x2="96.52" y2="-20.32" width="0.1524" layer="91"/>
 <label x="96.52" y="-20.32" size="1.778" layer="95"/>
 <pinref part="R3" gate="G$1" pin="1"/>
