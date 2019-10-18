@@ -158,6 +158,7 @@ class HomeViewModel {
         while (btListen.contains("\n")) btListen = btListen.substring(btListen.indexOf("\n") + 1);
       },
       onDisconnect: () {
+        BluetoothService.close(address: deviceMacAddress);
         _showAlertDialog(context, "Disconnected", "You have been disconnected from the bluetooth device");
         this.isConnected = false;
         onDataChanged();
