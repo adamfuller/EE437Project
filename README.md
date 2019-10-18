@@ -20,3 +20,18 @@ Autonomous robot car with a smartphone interface
 
 ## Bottom
 <img src="/images/preview_bottom.png" width="50%">
+
+
+# Reduced Custom Board Board
+<img src="/images/reduced_board.png" width="50%">
+
+# Reduced Custom Board Schematic
+<img src="/images/reduced_schematic.png" width="100%">
+
+# Reduced Custom Board Manufacturing Preview
+
+## Top
+<img src="/images/reduced_preview_top.png" width="50%">
+
+## Bottom
+<img src="/images/reduced_preview_bottom.png" width="50%">
