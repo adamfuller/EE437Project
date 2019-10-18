@@ -12,6 +12,8 @@ class SteeringService {
   // Map of Intent to extent for commands;
   static Map<Intent, Extent> _cache = {};
 
+  static Map<Intent, Extent> _lastReceived = {};
+
   // List of commands to be executed;
   static Uint8List _commandsCache;
 
@@ -96,7 +98,10 @@ class SteeringService {
     _cache[Intent.leftPower] = Extent.fromUnit((isTurningLeft ? turnPower : throttle));
     _cache[Intent.rightPower] = Extent.fromUnit((isTurningRight ? turnPower : throttle));
 
-    _commandsCache = Uint8List.fromList(_cache.entries.fold(<int>[], (l, com) => l..add(_commandValue(com.key, com.value))));
+    _commandsCache = Uint8List.fromList(_cache.entries.fold(<int>[], (l, com) {
+      if (_lastReceived.containsKey(com.key) && _lastReceived[com.key] == com.value) return l;
+      return l..add(_commandValue(com.key, com.value));
+    }));
   }
 
   /// Adds low left and right power to the cache.
@@ -104,6 +109,14 @@ class SteeringService {
     isInNeutral = true;
     _cache[Intent.leftPower] = Extent.none;
     _cache[Intent.rightPower] = Extent.none;
+  }
+
+  static void updateLastReceived(Uint8List vals) {
+    _lastReceived.clear();
+    List<int> data = vals.toList();
+    for (int i = 0; i < data.length; i++) {
+      _lastReceived[Intent(data[i] & 0xE0)] = Extent(data[i] & 0x1F);
+    }
   }
 
   //
@@ -129,6 +142,15 @@ class Extent {
 
   /// Create a new Extent instance with a value of __value__
   const Extent(this.value);
+
+  @override
+  int get hashCode => this.value;
+
+  @override
+  bool operator ==(dynamic other) {
+    if (other.runtimeType != this.runtimeType) return false;
+    return other.value == this.value;
+  }
 
   /// Returns an extent with a value of __val__ * __Extent.maxValue__
   factory Extent.fromUnit(double val) => val >= 1.0 ? Extent.max : Extent(((val) * maxValue).toInt());
@@ -157,6 +179,15 @@ class Intent {
   final int value;
 
   const Intent(this.value);
+
+  @override
+  int get hashCode => this.value;
+
+  @override
+  bool operator ==(dynamic other) {
+    if (other.runtimeType != this.runtimeType) return false;
+    return other.value == this.value;
+  }
 }
 
 /// Class to hold values correlating to each connection to the driver.

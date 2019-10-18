@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -154,10 +155,13 @@ class HomeViewModel {
     bool successfullyConnected = await BluetoothService.listen(
       deviceMacAddress,
       (address, data) {
+        ss.SteeringService.updateLastReceived(data);
         btListen += String.fromCharCodes(data.toList());
         while (btListen.contains("\n")) btListen = btListen.substring(btListen.indexOf("\n") + 1);
       },
       onDisconnect: () {
+        // Clears the last received list
+        ss.SteeringService.updateLastReceived(Uint8List.fromList([]));
         BluetoothService.close(address: deviceMacAddress);
         _showAlertDialog(context, "Disconnected", "You have been disconnected from the bluetooth device");
         this.isConnected = false;
