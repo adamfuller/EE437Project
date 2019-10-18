@@ -22,7 +22,7 @@ Autonomous robot car with a smartphone interface
 <img src="/images/preview_bottom.png" width="50%">
 
 
-# Reduced Custom Board Board
+# Reduced Custom Board
 <img src="/images/reduced_board.png" width="50%">
 
 # Reduced Custom Board Schematic
@@ -36,7 +36,7 @@ Autonomous robot car with a smartphone interface
 ## Bottom
 <img src="/images/reduced_preview_bottom.png" width="50%">
 
-# Stand-alone Custom Board Board
+# Stand-alone Custom Board
 <img src="/images/standalone_board.png" width="50%">
 
 # Stand-alone Custom Board Schematic
