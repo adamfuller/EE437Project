@@ -1,19 +1,21 @@
+#include <Servo.h>
+
+
 #define ECHO_PIN  A4  
 #define TRIG_PIN  A5
-#define ENA_PIN  5
-#define ENB_PIN  11
-#define IN1_PIN  6 // Right forward
-#define IN2_PIN  7 // Right backward
-#define IN3_PIN  8 // Left backward
-#define IN4_PIN  9 // Left forward
+#define ENA_PIN   5
+#define ENB_PIN   11
+#define IN1_PIN   6 // Right forward
+#define IN2_PIN   7 // Right backward
+#define IN3_PIN   8 // Left backward
+#define IN4_PIN   9 // Left forward
+#define SERVO_PIN     3 
 
 int pinToChange;
 int btOutput;
-int index = -1;
 int intent, extent;
-int extentCache[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-int extentRawCache[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-int intentCache[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+int cache[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+Servo servo;
 
 int getDistance() {
   digitalWrite(TRIG_PIN, LOW);
@@ -51,6 +53,13 @@ void spinLeft(){
   analogWrite(IN4_PIN, 0);
 }
 
+int steeringAngle(){
+  int leftPower = (int)((((cache[0x06]) & 0x1F) / 31.0) * 255 );
+  int rightPower = (int)((((cache[0x05]) & 0x1F) / 31.0) * 255 );
+  if (leftPower == rightPower) return 90;
+  return (int)((rightPower * 1.0 / (rightPower + leftPower) * 1.0) * 180);
+}
+
 void performTask(int task){
   switch (task){
     case 0x00:
@@ -63,7 +72,6 @@ void performTask(int task){
       spinLeft();
       break;
     default:
-      spinLeft();
       break;
   }
 }
@@ -78,6 +86,7 @@ void setup() {
   pinMode(IN4_PIN, OUTPUT);
   pinMode(ENA_PIN, OUTPUT);
   pinMode(ENB_PIN, OUTPUT);
+  servo.attach(SERVO_PIN);
 }
 
 void loop() {
@@ -88,26 +97,33 @@ void loop() {
   bool shouldBrake = abs(dist) <= 20;
 
   // Check for next command(s)
-  while (Serial.available() && index < 9){
-    index++;
-    btOutput = Serial.read();
-    intentCache[index] = (btOutput & 0xE0) >> 5;
-    extentCache[index] = (int)(((btOutput & 0x1F) / 31.0) * 255 );
-    extentRawCache[index] = btOutput & 0x1F;
+  for (int i = 0; i< 10; i++){
+    if (Serial.available()){
+      btOutput = Serial.read();
+      cache[(btOutput & 0xE0) >> 5] = btOutput;
+    } else {
+      break;
+    }
   }
 
-  for (int i = index; i >= 0; i--){
-    intent = intentCache[index];
-    extent = extentCache[index];
+  if (shouldBrake){
+    brake();
+    servo.write(90);
+    return;
+  }
+
+  servo.write(steeringAngle());
+
+  for (intent = 0x01; intent < 0x08; intent++){
+    extent = (int)((((cache[intent]) & 0x1F) / 31.0) * 255 );
+
+    // Continue if this command is used (bits 5-7 cleared)
+    if ((cache[intent] & 0xE0) == 0x00) continue;
     
     switch (intent){
       case 0x01:
         // IN1
-        if (shouldBrake){
-          analogWrite(IN1_PIN, 0);
-        } else {
-          analogWrite(IN1_PIN, extent);
-        }
+        analogWrite(IN1_PIN, extent);
         break;
       case 0x02:
         // IN2
@@ -119,11 +135,7 @@ void loop() {
         break;
       case 0x04:
         // IN4
-        if (shouldBrake){
-          analogWrite(IN4_PIN, 0);
-        } else {
-          analogWrite(IN4_PIN, extent);
-        }
+        analogWrite(IN4_PIN, extent);
         break;
       case 0x05:
         // ENA
@@ -133,16 +145,14 @@ void loop() {
         // ENB
         analogWrite(ENB_PIN, extent);
         break;
-      case 0x07:
+       case 0x07:
         // Multi-command tasks
-        performTask(extentRawCache[index]);
-        index = -1;
-        return;
+        performTask(cache[intent] & 0x1F);
         break;
       default:
         break;
     }
+    // Set the command as used (clear bits 5-7)
+    cache[intent] = cache[intent] & 0x1F;
   }
-  
-  index = -1;
 }
