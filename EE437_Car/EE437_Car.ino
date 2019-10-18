@@ -11,10 +11,9 @@
 #define IN4_PIN   9 // Left forward
 #define SERVO_PIN     3 
 
-int pinToChange;
-int btOutput;
+uint8_t btOutput;
 int intent, extent;
-int cache[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+uint8_t cache[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 Servo servo;
 
 int getDistance() {
@@ -107,8 +106,16 @@ void loop() {
   }
 
   if (shouldBrake){
-    brake();
-    servo.write(90);
+
+    // Ensure we shouldn't be braking or going in reverse
+    if ( cache[0x07] != 0xE0 && (cache[0x02]&0x1F != 0x00 || cache[0x03]&0x1F != 0x00) ){
+      analogWrite(IN2_PIN, (int)((((cache[0x02]) & 0x1F) / 31.0) * 255 ));
+      analogWrite(IN3_PIN, (int)((((cache[0x03]) & 0x1F) / 31.0) * 255 ));
+      analogWrite(ENA_PIN, (int)((((cache[0x05]) & 0x1F) / 31.0) * 255 ));
+      analogWrite(ENB_PIN, (int)((((cache[0x06]) & 0x1F) / 31.0) * 255 ));
+    } else {
+      brake();
+    }
     return;
   }
 
@@ -119,6 +126,9 @@ void loop() {
 
     // Continue if this command is used (bits 5-7 cleared)
     if ((cache[intent] & 0xE0) == 0x00) continue;
+    
+    // return the command to the controller ( this is used to reduce sending repeat commands )
+    Serial.print(cache[intent]);
     
     switch (intent){
       case 0x01:
