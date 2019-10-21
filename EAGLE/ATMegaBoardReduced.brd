@@ -2132,10 +2132,10 @@ design rules under a new name.</description>
 <attribute name="SPICEPREFIX" value="C" x="3.81" y="77.47" size="1.778" layer="27" rot="R180" display="off"/>
 <attribute name="VALUE" x="51.689" y="36.957" size="1.27" layer="27" ratio="10" rot="R180"/>
 </element>
-<element name="HC-SR04" library="pinhead" library_urn="urn:adsk.eagle:library:325" package="1X04" package3d_urn="urn:adsk.eagle:package:22407/2" value="" x="24.13" y="49.53" smashed="yes">
-<attribute name="NAME" x="18.9738" y="51.3588" size="1.27" layer="25" ratio="10"/>
-<attribute name="POPULARITY" value="91" x="43.18" y="7.62" size="1.778" layer="27" display="off"/>
-<attribute name="VALUE" x="19.05" y="46.355" size="1.27" layer="27"/>
+<element name="HC-SR04" library="pinhead" library_urn="urn:adsk.eagle:library:325" package="1X04" package3d_urn="urn:adsk.eagle:package:22407/2" value="" x="22.86" y="50.8" smashed="yes">
+<attribute name="NAME" x="17.7038" y="52.6288" size="1.27" layer="25" ratio="10"/>
+<attribute name="POPULARITY" value="91" x="41.91" y="8.89" size="1.778" layer="27" display="off"/>
+<attribute name="VALUE" x="17.78" y="47.625" size="1.27" layer="27"/>
 </element>
 <element name="IC2" library="adafruit" package="DIL28-3" value="ATMEGA168-20P" x="46.99" y="44.45" smashed="yes">
 <attribute name="NAME" x="67.183" y="41.91" size="1.778" layer="25" ratio="10" rot="R90"/>
@@ -2298,7 +2298,7 @@ design rules under a new name.</description>
 <wire x1="36.83" y1="39.37" x2="36.83" y2="44.45" width="0.762" layer="1"/>
 <wire x1="40.64" y1="34.29" x2="40.64" y2="35.56" width="0.762" layer="1"/>
 <wire x1="40.64" y1="35.56" x2="36.83" y2="39.37" width="0.762" layer="1"/>
-<wire x1="20.32" y1="49.53" x2="20.32" y2="44.45" width="0.762" layer="1"/>
+<wire x1="19.05" y1="50.8" x2="19.05" y2="44.45" width="0.762" layer="1"/>
 <wire x1="31.75" y1="17.78" x2="31.75" y2="21.17170625" width="0.762" layer="1"/>
 <wire x1="31.75" y1="21.17170625" x2="34.2138" y2="23.63550625" width="0.762" layer="1"/>
 <wire x1="34.2138" y1="23.63550625" x2="34.2138" y2="44.3738" width="0.762" layer="1"/>
@@ -2306,9 +2306,8 @@ design rules under a new name.</description>
 <wire x1="23.4696" y1="30.5054" x2="22.5933" y2="31.3817" width="0.762" layer="1"/>
 <wire x1="22.5933" y1="31.3817" x2="22.19275625" y2="31.3817" width="0.762" layer="1"/>
 <wire x1="22.19275625" y1="31.3817" x2="19.05" y2="34.52445625" width="0.762" layer="1"/>
-<wire x1="19.05" y1="34.52445625" x2="19.05" y2="43.18" width="0.762" layer="1"/>
-<wire x1="19.05" y1="43.18" x2="20.32" y2="44.45" width="0.762" layer="1"/>
-<wire x1="20.32" y1="44.45" x2="30.48" y2="44.45" width="0.762" layer="1"/>
+<wire x1="19.05" y1="34.52445625" x2="19.05" y2="44.45" width="0.762" layer="1"/>
+<wire x1="19.05" y1="44.45" x2="30.48" y2="44.45" width="0.762" layer="1"/>
 <wire x1="30.48" y1="44.45" x2="34.1376" y2="44.45" width="0.762" layer="1"/>
 <wire x1="36.83" y1="44.45" x2="45.72" y2="44.45" width="0.762" layer="1"/>
 <wire x1="45.72" y1="44.45" x2="46.99" y2="44.45" width="0.762" layer="1"/>
@@ -2416,19 +2415,17 @@ design rules under a new name.</description>
 <signal name="ECHO">
 <contactref element="HC-SR04" pad="3"/>
 <contactref element="IC2" pad="27"/>
-<wire x1="26.6446" y1="50.828575" x2="27.403425" y2="51.5874" width="0.762" layer="1"/>
-<wire x1="25.4" y1="49.53" x2="26.6446" y2="50.7746" width="0.762" layer="1"/>
-<wire x1="26.6446" y1="50.7746" x2="26.6446" y2="50.828575" width="0.762" layer="1"/>
-<wire x1="27.403425" y1="51.5874" x2="29.6926" y2="51.5874" width="0.762" layer="1"/>
-<wire x1="29.6926" y1="51.5874" x2="33.02" y2="48.26" width="0.762" layer="1"/>
+<wire x1="28.4226" y1="52.8574" x2="24.9174" y2="52.8574" width="0.762" layer="1"/>
+<wire x1="24.13" y1="50.8" x2="24.13" y2="52.07" width="0.762" layer="1"/>
+<wire x1="24.9174" y1="52.8574" x2="24.13" y2="52.07" width="0.762" layer="1"/>
+<wire x1="28.4226" y1="52.8574" x2="33.02" y2="48.26" width="0.762" layer="1"/>
 </signal>
 <signal name="TRIG">
 <contactref element="HC-SR04" pad="2"/>
 <contactref element="IC2" pad="28"/>
-<wire x1="22.86" y1="48.26" x2="22.86" y2="49.53" width="0.762" layer="1"/>
-<wire x1="30.48" y1="48.26" x2="29.21" y2="46.99" width="0.762" layer="1"/>
-<wire x1="24.13" y1="46.99" x2="22.86" y2="48.26" width="0.762" layer="1"/>
-<wire x1="29.21" y1="46.99" x2="24.13" y2="46.99" width="0.762" layer="1"/>
+<wire x1="21.59" y1="50.8" x2="21.59" y2="49.53" width="0.762" layer="1"/>
+<wire x1="22.86" y1="48.26" x2="21.59" y2="49.53" width="0.762" layer="1"/>
+<wire x1="30.48" y1="48.26" x2="22.86" y2="48.26" width="0.762" layer="1"/>
 </signal>
 <signal name="9GPWM">
 <contactref element="SG90" pad="1"/>
