@@ -12,6 +12,7 @@ Autonomous robot car with a smartphone interface
 - [ ] Test board
 
 # Parts List
+## Controller Board
 - [ ] 1x ATMega328 IC
 - [ ] 1x 16 MHz Crystal
 - [ ] 1x 28pin socket
@@ -28,6 +29,11 @@ Autonomous robot car with a smartphone interface
 - [ ] 1x 2k resistor
 - [ ] 1x 5mm LED
 - [ ] Wire
+
+## Signal Lights Board
+- [ ] 12x 5mm LED
+- [ ] 4x 300 resistor
+- [ ] 4x 4 pin header - male
 
 # Stand-alone Custom Board
 <img src="/images/standalone_board.png" width="50%">
