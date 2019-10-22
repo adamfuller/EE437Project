@@ -11393,11 +11393,11 @@ W = angled&lt;p&gt;
 <variantdefs>
 </variantdefs>
 <classes>
-<class number="0" name="default" width="0" drill="0">
+<class number="0" name="default" width="0.3048" drill="0">
 </class>
 <class number="1" name="Power" width="1.778" drill="0">
 </class>
-<class number="2" name="5v" width="0.762" drill="0">
+<class number="2" name="5v" width="0.889" drill="0">
 </class>
 </classes>
 <parts>
