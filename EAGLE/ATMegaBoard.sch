@@ -11448,7 +11448,8 @@ W = angled&lt;p&gt;
 <part name="R2" library="rcl" library_urn="urn:adsk.eagle:library:334" deviceset="R-US_" device="0207/10" package3d_urn="urn:adsk.eagle:package:23491/2" value="2k"/>
 <part name="R3" library="rcl" library_urn="urn:adsk.eagle:library:334" deviceset="R-US_" device="0207/10" package3d_urn="urn:adsk.eagle:package:23491/2" value="1k"/>
 <part name="HC05" library="con-lsta" library_urn="urn:adsk.eagle:library:161" deviceset="FE06W" device="" package3d_urn="urn:adsk.eagle:package:8198/1"/>
-<part name="LIGHTS" library="con-lstb" library_urn="urn:adsk.eagle:library:162" deviceset="MA06-2" device="" package3d_urn="urn:adsk.eagle:package:8342/1"/>
+<part name="LEDS" library="con-lstb" library_urn="urn:adsk.eagle:library:162" deviceset="MA06-2" device="" package3d_urn="urn:adsk.eagle:package:8342/1"/>
+<part name="LIGHTS1" library="con-lstb" library_urn="urn:adsk.eagle:library:162" deviceset="MA06-2" device="" package3d_urn="urn:adsk.eagle:package:8342/1"/>
 </parts>
 <sheets>
 <sheet>
@@ -11558,9 +11559,13 @@ W = angled&lt;p&gt;
 <attribute name="VALUE" x="110.49" y="-5.08" size="1.778" layer="96" rot="R180"/>
 <attribute name="NAME" x="110.49" y="-26.162" size="1.778" layer="95" rot="R180"/>
 </instance>
-<instance part="LIGHTS" gate="1" x="114.3" y="73.66" smashed="yes" rot="R180">
+<instance part="LEDS" gate="1" x="114.3" y="73.66" smashed="yes" rot="R180">
 <attribute name="VALUE" x="118.11" y="83.82" size="1.778" layer="96" rot="R180"/>
 <attribute name="NAME" x="118.11" y="65.278" size="1.778" layer="95" rot="R180"/>
+</instance>
+<instance part="LIGHTS1" gate="1" x="134.62" y="73.66" smashed="yes" rot="R180">
+<attribute name="VALUE" x="138.43" y="83.82" size="1.778" layer="96" rot="R180"/>
+<attribute name="NAME" x="138.43" y="65.278" size="1.778" layer="95" rot="R180"/>
 </instance>
 </instances>
 <busses>
@@ -11791,15 +11796,21 @@ W = angled&lt;p&gt;
 <label x="96.52" y="-15.24" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="LIGHTS" gate="1" pin="1"/>
+<pinref part="LEDS" gate="1" pin="1"/>
 <wire x1="106.68" y1="81.28" x2="106.68" y2="86.36" width="0.1524" layer="91"/>
 <wire x1="106.68" y1="86.36" x2="114.3" y2="86.36" width="0.1524" layer="91"/>
-<pinref part="LIGHTS" gate="1" pin="2"/>
+<pinref part="LEDS" gate="1" pin="2"/>
 <wire x1="114.3" y1="86.36" x2="121.92" y2="86.36" width="0.1524" layer="91"/>
 <wire x1="121.92" y1="86.36" x2="121.92" y2="81.28" width="0.1524" layer="91"/>
 <wire x1="114.3" y1="86.36" x2="114.3" y2="88.9" width="0.1524" layer="91"/>
 <junction x="114.3" y="86.36"/>
 <label x="114.3" y="88.9" size="1.778" layer="95"/>
+<pinref part="LIGHTS1" gate="1" pin="1"/>
+<wire x1="121.92" y1="81.28" x2="127" y2="81.28" width="0.1524" layer="91"/>
+<junction x="121.92" y="81.28"/>
+<pinref part="LIGHTS1" gate="1" pin="2"/>
+<wire x1="127" y1="81.28" x2="142.24" y2="81.28" width="0.1524" layer="91"/>
+<junction x="127" y="81.28"/>
 </segment>
 </net>
 <net name="VIN" class="1">
@@ -12020,10 +12031,49 @@ W = angled&lt;p&gt;
 <pinref part="R3" gate="G$1" pin="1"/>
 </segment>
 </net>
-<net name="N$1" class="0">
+<net name="N$4" class="0">
 <segment>
-<pinref part="LIGHTS" gate="1" pin="3"/>
-<pinref part="LIGHTS" gate="1" pin="4"/>
+<pinref part="LEDS" gate="1" pin="7"/>
+<pinref part="LEDS" gate="1" pin="8"/>
+<wire x1="106.68" y1="73.66" x2="121.92" y2="73.66" width="0.1524" layer="91"/>
+<pinref part="IC2" gate="G$1" pin="(PCI9/ADC1)PC1"/>
+<wire x1="88.9" y1="76.2" x2="101.6" y2="76.2" width="0.1524" layer="91"/>
+<wire x1="101.6" y1="76.2" x2="101.6" y2="73.66" width="0.1524" layer="91"/>
+<wire x1="101.6" y1="73.66" x2="106.68" y2="73.66" width="0.1524" layer="91"/>
+<junction x="106.68" y="73.66"/>
+<pinref part="LIGHTS1" gate="1" pin="7"/>
+<wire x1="121.92" y1="73.66" x2="127" y2="73.66" width="0.1524" layer="91"/>
+<junction x="121.92" y="73.66"/>
+<pinref part="LIGHTS1" gate="1" pin="8"/>
+<wire x1="127" y1="73.66" x2="142.24" y2="73.66" width="0.1524" layer="91"/>
+<junction x="127" y="73.66"/>
+</segment>
+</net>
+<net name="N$7" class="0">
+<segment>
+<pinref part="LEDS" gate="1" pin="12"/>
+<pinref part="LEDS" gate="1" pin="11"/>
+<wire x1="106.68" y1="68.58" x2="121.92" y2="68.58" width="0.1524" layer="91"/>
+<pinref part="IC2" gate="G$1" pin="(PCI11/ADC3)PC3"/>
+<wire x1="88.9" y1="71.12" x2="96.52" y2="71.12" width="0.1524" layer="91"/>
+<wire x1="96.52" y1="71.12" x2="96.52" y2="68.58" width="0.1524" layer="91"/>
+<wire x1="96.52" y1="68.58" x2="106.68" y2="68.58" width="0.1524" layer="91"/>
+<junction x="106.68" y="68.58"/>
+<pinref part="LIGHTS1" gate="1" pin="11"/>
+<wire x1="121.92" y1="68.58" x2="127" y2="68.58" width="0.1524" layer="91"/>
+<junction x="121.92" y="68.58"/>
+<pinref part="LIGHTS1" gate="1" pin="12"/>
+<wire x1="127" y1="68.58" x2="142.24" y2="68.58" width="0.1524" layer="91"/>
+<junction x="127" y="68.58"/>
+</segment>
+</net>
+<net name="N$6" class="0">
+<segment>
+<pinref part="LIGHTS1" gate="1" pin="3"/>
+<pinref part="LIGHTS1" gate="1" pin="4"/>
+<wire x1="127" y1="78.74" x2="142.24" y2="78.74" width="0.1524" layer="91"/>
+<pinref part="LEDS" gate="1" pin="3"/>
+<pinref part="LEDS" gate="1" pin="4"/>
 <wire x1="106.68" y1="78.74" x2="121.92" y2="78.74" width="0.1524" layer="91"/>
 <wire x1="121.92" y1="78.74" x2="124.46" y2="78.74" width="0.1524" layer="91"/>
 <junction x="121.92" y="78.74"/>
@@ -12032,53 +12082,44 @@ W = angled&lt;p&gt;
 <wire x1="106.68" y1="17.78" x2="88.9" y2="17.78" width="0.1524" layer="91"/>
 <wire x1="124.46" y1="60.96" x2="106.68" y2="60.96" width="0.1524" layer="91"/>
 <wire x1="106.68" y1="60.96" x2="106.68" y2="17.78" width="0.1524" layer="91"/>
+<wire x1="127" y1="78.74" x2="124.46" y2="78.74" width="0.1524" layer="91"/>
+<junction x="127" y="78.74"/>
+<junction x="124.46" y="78.74"/>
 </segment>
 </net>
 <net name="N$2" class="0">
 <segment>
-<pinref part="LIGHTS" gate="1" pin="5"/>
-<pinref part="LIGHTS" gate="1" pin="6"/>
+<pinref part="LIGHTS1" gate="1" pin="5"/>
+<pinref part="LIGHTS1" gate="1" pin="6"/>
+<wire x1="127" y1="76.2" x2="142.24" y2="76.2" width="0.1524" layer="91"/>
+<pinref part="LEDS" gate="1" pin="5"/>
+<pinref part="LEDS" gate="1" pin="6"/>
 <wire x1="106.68" y1="76.2" x2="121.92" y2="76.2" width="0.1524" layer="91"/>
 <pinref part="IC2" gate="G$1" pin="(PCI8/ADC0)PC0"/>
 <wire x1="88.9" y1="78.74" x2="104.14" y2="78.74" width="0.1524" layer="91"/>
 <wire x1="104.14" y1="78.74" x2="104.14" y2="76.2" width="0.1524" layer="91"/>
 <wire x1="104.14" y1="76.2" x2="106.68" y2="76.2" width="0.1524" layer="91"/>
-</segment>
-</net>
-<net name="N$4" class="0">
-<segment>
-<pinref part="LIGHTS" gate="1" pin="7"/>
-<pinref part="LIGHTS" gate="1" pin="8"/>
-<wire x1="106.68" y1="73.66" x2="121.92" y2="73.66" width="0.1524" layer="91"/>
-<pinref part="IC2" gate="G$1" pin="(PCI9/ADC1)PC1"/>
-<wire x1="88.9" y1="76.2" x2="101.6" y2="76.2" width="0.1524" layer="91"/>
-<wire x1="101.6" y1="76.2" x2="101.6" y2="73.66" width="0.1524" layer="91"/>
-<wire x1="101.6" y1="73.66" x2="106.68" y2="73.66" width="0.1524" layer="91"/>
-<junction x="106.68" y="73.66"/>
+<wire x1="127" y1="76.2" x2="121.92" y2="76.2" width="0.1524" layer="91"/>
+<junction x="127" y="76.2"/>
+<junction x="121.92" y="76.2"/>
 </segment>
 </net>
 <net name="N$5" class="0">
 <segment>
-<pinref part="LIGHTS" gate="1" pin="9"/>
-<pinref part="LIGHTS" gate="1" pin="10"/>
+<pinref part="LIGHTS1" gate="1" pin="10"/>
+<pinref part="LIGHTS1" gate="1" pin="9"/>
+<wire x1="142.24" y1="71.12" x2="127" y2="71.12" width="0.1524" layer="91"/>
+<pinref part="LEDS" gate="1" pin="9"/>
+<pinref part="LEDS" gate="1" pin="10"/>
 <wire x1="106.68" y1="71.12" x2="121.92" y2="71.12" width="0.1524" layer="91"/>
 <pinref part="IC2" gate="G$1" pin="(PCI10/ADC2)PC2"/>
 <wire x1="88.9" y1="73.66" x2="99.06" y2="73.66" width="0.1524" layer="91"/>
 <wire x1="99.06" y1="73.66" x2="99.06" y2="71.12" width="0.1524" layer="91"/>
 <wire x1="99.06" y1="71.12" x2="106.68" y2="71.12" width="0.1524" layer="91"/>
 <junction x="106.68" y="71.12"/>
-</segment>
-</net>
-<net name="N$7" class="0">
-<segment>
-<pinref part="LIGHTS" gate="1" pin="12"/>
-<pinref part="LIGHTS" gate="1" pin="11"/>
-<wire x1="106.68" y1="68.58" x2="121.92" y2="68.58" width="0.1524" layer="91"/>
-<pinref part="IC2" gate="G$1" pin="(PCI11/ADC3)PC3"/>
-<wire x1="88.9" y1="71.12" x2="96.52" y2="71.12" width="0.1524" layer="91"/>
-<wire x1="96.52" y1="71.12" x2="96.52" y2="68.58" width="0.1524" layer="91"/>
-<wire x1="96.52" y1="68.58" x2="106.68" y2="68.58" width="0.1524" layer="91"/>
-<junction x="106.68" y="68.58"/>
+<wire x1="127" y1="71.12" x2="121.92" y2="71.12" width="0.1524" layer="91"/>
+<junction x="127" y="71.12"/>
+<junction x="121.92" y="71.12"/>
 </segment>
 </net>
 </nets>

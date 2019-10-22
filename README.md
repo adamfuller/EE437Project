@@ -20,7 +20,7 @@ Autonomous robot car with a smartphone interface
 - [ ] 1x 3 pin header - male
 - [ ] 1x 6 pin header - female 90°
 - [ ] 2x 2 slot terminal blocks
-- [ ] 1x 2x5 header - male
+- [ ] 2x 2x6 header - male
 - [ ] 1x power jack
 - [ ] 8x 1n4004 diodes
 - [ ] 2x 220uF capacitor
