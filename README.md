@@ -7,6 +7,9 @@ Autonomous robot car with a smartphone interface
 - [x] Incorporate Arduino IC into board (Adam - 10/15)
 - [x] Add signal lights (forward, backward, turn)
 - [ ] Design signal lights board
+- [ ] Submit board design and parts list
+- [ ] Assemble board
+- [ ] Test board
 
 # Parts List
 - [ ] 1x ATMega328 IC
