@@ -14,6 +14,8 @@
 uint8_t btOutput;
 int intent, extent;
 uint8_t cache[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+bool checkedLastTime = false;
+bool shouldBrake;
 Servo servo;
 
 int getDistance() {
@@ -89,11 +91,15 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  int dist = getDistance();
   
-  // Check if we should brake.
-  bool shouldBrake = abs(dist) <= 20;
+  // Only check to brake every other time
+  if (!checkedLastTime){
+    int dist = getDistance();  
+    // Check if we should brake.
+    shouldBrake = abs(dist) <= 20;
+  }
+  
+  checkedLastTime = !checkedLastTime;
 
   // Check for next command(s)
   for (int i = 0; i< 10; i++){
