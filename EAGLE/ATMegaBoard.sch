@@ -11668,6 +11668,9 @@ W = angled&lt;p&gt;
 <pinref part="HC05" gate="G$1" pin="2"/>
 <wire x1="101.6" y1="-12.7" x2="96.52" y2="-12.7" width="0.1524" layer="91"/>
 <label x="96.52" y="-12.7" size="1.778" layer="95"/>
+<pinref part="HC05" gate="G$1" pin="1"/>
+<wire x1="101.6" y1="-10.16" x2="101.6" y2="-12.7" width="0.1524" layer="91"/>
+<junction x="101.6" y="-12.7"/>
 </segment>
 <segment>
 <pinref part="IC2" gate="G$1" pin="PC6(/RESET/PCI14)"/>
