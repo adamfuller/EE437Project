@@ -118,7 +118,7 @@ class HomeViewModel {
 
     SensorService.start();
 
-    this.btTimer = Timer.periodic(Duration(milliseconds: 50), (_) {
+    this.btTimer = Timer.periodic(Duration(milliseconds: 16), (_) {
       if (!isAcceptingInputs) return;
       if (isBraking) {
         BluetoothService.sendData(connectedAddress, ss.SteeringService.brake);
