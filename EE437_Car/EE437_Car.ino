@@ -31,9 +31,9 @@ void brake(){
   analogWrite(ENA_PIN, 0);
   analogWrite(ENB_PIN, 0);
   analogWrite(IN1_PIN, 0);
-  PORTD&=0x3F; // Set IN2 and IN3 low
-//  analogWrite(IN2_PIN, 0);
-//  analogWrite(IN3_PIN, 0);
+//  PORTD&=0x3F; // Set IN2 and IN3 low
+  analogWrite(IN2_PIN, 0);
+  analogWrite(IN3_PIN, 0);
   analogWrite(IN4_PIN, 0);
 }
 
@@ -92,7 +92,6 @@ void setup() {
 }
 
 void loop() {
-  
   // Only check to brake every other time
   if (!checkedLastTime){
     int dist = getDistance();  
@@ -123,6 +122,7 @@ void loop() {
     } else {
       brake();
     }
+    Serial.println(micros() - start);
     return;
   }
 
