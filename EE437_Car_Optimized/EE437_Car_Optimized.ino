@@ -52,15 +52,23 @@ uint8_t btOutput;
 uint8_t cache[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 bool checkedLastTime = false;
 Servo servo;
+bool shouldBrake = false;
 
+uint8_t cycleCount = 0;
+uint8_t ledState = 0xFF;
 
-bool shouldBrake(){
+bool pulseSent = false;
+unsigned long pulseStart = 0;
+
+bool sendPulse(){
   TRIG_LOW;
   delayMicroseconds(2);
   TRIG_HIGH;
   delayMicroseconds(10);
   TRIG_LOW;
-  return pulseIn(ECHO_PIN, HIGH, 1583) > 0;
+  delayMicroseconds(2);
+  pulseSent = true;
+  pulseStart = micros();
 }
 
 void brake(){
@@ -94,11 +102,21 @@ void spinLeft(){
  * Returns the angle at which the car should be heading
  * between 20 and 160 degrees
  */
-uint8_t steeringAngle(){
-  uint8_t leftPower = (cache[0x06] & 0x1F) * 8 ;
-  uint8_t rightPower = (cache[0x05] & 0x1F) * 8 ;
-  if (leftPower == rightPower) return 90;
-  return 20 + (rightPower * 140) / (rightPower + leftPower);
+//uint8_t steeringAngle(){
+//  uint8_t leftPower = (cache[0x06] & 0x1F) * 8 ;
+//  uint8_t rightPower = (cache[0x05] & 0x1F) * 8 ;
+//  if (leftPower == rightPower) return 90;
+//  return (uint8_t)(20 + (int) (rightPower * 140) / (int) (rightPower + leftPower));
+//}
+
+uint8_t steeringAngle()
+{
+  uint8_t leftPower = (cache[0x06] & 0x1F);
+  uint8_t rightPower = (cache[0x05] & 0x1F);
+
+  return (rightPower > leftPower) 
+  ? (87 + (rightPower - leftPower) * 3) 
+  : (93 - (leftPower - rightPower) * 3);
 }
 
 void performTask(uint8_t task){
@@ -134,6 +152,8 @@ void setup() {
   pinMode(ENA_PIN, OUTPUT);
   pinMode(ENB_PIN, OUTPUT);
 
+  pinMode(LED_BUILTIN, OUTPUT);
+
   // Servo setup
   servo.attach(SERVO_PIN);
 }
@@ -145,31 +165,36 @@ int main(void){
   setup();
 
   START_LOOP;
+  
+  if (cycleCount == 0){
+    digitalWrite(LED_BUILTIN, ledState);
+    ledState = ~ledState;
+  }
+  cycleCount++;
 
   // Check for next command(s)
-  for (uint8_t i = 0; i< 10; i++){
-    if (Serial.available()){
-      btOutput = Serial.read();
-      cache[(btOutput & 0xE0) >> 5] = btOutput;
-    }
-    else{
-      break;
-    }
+  for (uint8_t i = 0; i<10 && Serial.available(); i++){
+    btOutput = Serial.read();
+    cache[(btOutput & 0xE0) >> 5] = btOutput;
   }
 
-  if (!checkedLastTime){
-    if (shouldBrake()){
+  if (shouldBrake || !cycleCount%3){
+    
+    if (shouldBrake){
       // Ensure we aren't attempting to go in reverse
       if ( !(cache[0x07] != 0xE0 && ((cache[0x02]&0x1F) || (cache[0x03]&0x1F))) ){
         brake();
-        RESTART_LOOP;
+
+        if (!pulseSent) sendPulse(); 
+        asm(" JMP _checkForPulse");
       }
     }
+
+    if (!pulseSent) sendPulse();
   }
-  checkedLastTime = !checkedLastTime;
+//  checkedLastTime = !checkedLastTime;
 
   servo.write(steeringAngle());
-
 
   if(cache[0x01] & 0xE0){
     // IN1 has been updated
@@ -238,7 +263,24 @@ int main(void){
     cache[0x07] &= 0x1F;
   }
 
-  serialEventRun();
+  
+  asm("_checkForPulse:");
+  if (PINC & 0x10 && pulseSent){
+    unsigned long width = 0;
+    // wait for the pulse to stop
+   while (PINC & 0x10 && width++ < 1583);
+//   Serial.println(width * 0.034 / 2);
+
+   // 1200 Is the braking limit of about 20cm
+   shouldBrake = width < 1200;
+   
+//   serialEventRun();
+   pulseSent = false;
+  }
+
+  if (micros() - pulseStart > 2583){
+    pulseSent = false;
+  }
 
   RESTART_LOOP;
   return 0;
