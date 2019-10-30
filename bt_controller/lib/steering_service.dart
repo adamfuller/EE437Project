@@ -36,6 +36,8 @@ class SteeringService {
   /// List with command for spinning left
   static final Uint8List spinLeft = Uint8List.fromList([0xE2]);
 
+  static final Uint8List cancel = Uint8List.fromList([0xEF]);
+
   static bool isInNeutral = true;
 
   factory SteeringService() {

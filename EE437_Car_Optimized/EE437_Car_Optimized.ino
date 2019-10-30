@@ -42,15 +42,23 @@
 #define IN4_HIGH asm(" sbi 5, 1")//PORTB|=0x02 // 0b0000 0010
 #define IN4_LOW asm(" cbi 5, 1")//PORTB&=0xFD  // 0b1111 1101
 
+#define ENA_HIGH asm(" sbi 11, 5")//PORTD|=0x08 // 0b0000 1000
+#define ENA_LOW asm(" cbi 11, 5")//PORTD&=0xF7  // 0b1111 0111
+
+#define ENB_HIGH asm(" sbi 5, 3")//PORTB|=0x98 // 0b0000 1000
+#define ENB_LOW asm(" cbi 5, 3")//PORTB&=0xF7  // 0b1111 0111
+
 #define TRIG_HIGH asm(" sbi 8, 5")//PORTC|=0x20 // 0b0010 0000
 #define TRIG_LOW asm(" cbi 8, 5")//PORTC&=0xDF  // 0b1101 1111
 
 #define START_LOOP asm("_loopStart:");
 #define RESTART_LOOP asm("  JMP _loopStart");
 
+#define START_PULSE_CHECK asm("_pulseCheckStart:");
+#define SKIP_TO_PULSE_CHECK asm(" JMP _pulseCheckStart");
+
 uint8_t btOutput;
 uint8_t cache[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-bool checkedLastTime = false;
 Servo servo;
 bool shouldBrake = false;
 
@@ -72,8 +80,8 @@ bool sendPulse(){
 }
 
 void brake(){
-  analogWrite(ENA_PIN, 0);
-  analogWrite(ENB_PIN, 0);
+  ENA_LOW;
+  ENB_LOW;
   IN1_LOW;
   IN2_LOW;
   IN3_LOW;
@@ -81,8 +89,8 @@ void brake(){
 }
 
 void spinRight(){
-  analogWrite(ENA_PIN, 255);
-  analogWrite(ENB_PIN, 255);
+  ENA_HIGH;
+  ENB_HIGH;
   IN1_LOW;
   IN2_HIGH;
   IN3_LOW;
@@ -90,24 +98,13 @@ void spinRight(){
 }
 
 void spinLeft(){
-  analogWrite(ENA_PIN, 255);
-  analogWrite(ENB_PIN, 255);
+  ENA_HIGH;
+  ENB_HIGH;
   IN1_HIGH;
   IN2_LOW;
   IN3_HIGH;
   IN4_LOW;
 }
-
-/**
- * Returns the angle at which the car should be heading
- * between 20 and 160 degrees
- */
-//uint8_t steeringAngle(){
-//  uint8_t leftPower = (cache[0x06] & 0x1F) * 8 ;
-//  uint8_t rightPower = (cache[0x05] & 0x1F) * 8 ;
-//  if (leftPower == rightPower) return 90;
-//  return (uint8_t)(20 + (int) (rightPower * 140) / (int) (rightPower + leftPower));
-//}
 
 uint8_t steeringAngle()
 {
@@ -120,19 +117,10 @@ uint8_t steeringAngle()
 }
 
 void performTask(uint8_t task){
-  switch (task){
-    case 0x00:
-      brake();
-      break;
-    case 0x01:
-      spinRight();
-      break;
-    case 0x02:
-      spinLeft();
-      break;
-    default:
-      break;
-  }
+  if (task == 0x00) brake();
+  else if (task == 0x01) spinRight();
+  else if (task == 0x02) spinLeft();
+  else if (task == 0x0F) cache[0x07] = 0x00;
 }
 
 void setup() {
@@ -153,6 +141,10 @@ void setup() {
   pinMode(ENB_PIN, OUTPUT);
 
   pinMode(LED_BUILTIN, OUTPUT);
+
+  digitalWrite(ENA_PIN, HIGH);
+  digitalWrite(ENB_PIN, HIGH);
+
 
   // Servo setup
   servo.attach(SERVO_PIN);
@@ -186,15 +178,31 @@ int main(void){
         brake();
 
         if (!pulseSent) sendPulse(); 
-        asm(" JMP _checkForPulse");
+        SKIP_TO_PULSE_CHECK;
       }
     }
 
     if (!pulseSent) sendPulse();
   }
-//  checkedLastTime = !checkedLastTime;
 
   servo.write(steeringAngle());
+
+  if(cache[0x07] & 0xE0){
+    // IN1 has been updated
+    performTask(cache[0x07] & 0x1F);
+//    Serial.print(cache[0x07]);
+
+    // Set the command as used by clearing the last 3 bits
+//    cache[0x07] &= 0x1F;
+    
+    SKIP_TO_PULSE_CHECK;
+  }
+
+  if (cycleCount < ((cache[0x05] & 0x1F) * 8)) ENA_HIGH;
+  else ENA_LOW;
+
+  if (cycleCount < ((cache[0x06] & 0x1F) * 8)) ENB_HIGH;
+  else ENB_LOW;
 
   if(cache[0x01] & 0xE0){
     // IN1 has been updated
@@ -235,46 +243,17 @@ int main(void){
     // Set the command as used by clearing the last 3 bits
     cache[0x04] &= 0x1F;
   }
-
-  if(cache[0x05] & 0xE0){
-    // ENA has been updated
-    analogWrite(ENA_PIN, (cache[0x05] & 0x1F) * 8);
-//    Serial.print(cache[0x05]);
-
-    // Set the command as used by clearing the last 3 bits
-    cache[0x05] &= 0x1F;
-  }
-
-  if(cache[0x06] & 0xE0){
-    // ENB has been updated
-    analogWrite(ENB_PIN, (cache[0x06] & 0x1F) * 8);
-//    Serial.print(cache[0x06]);
-
-    // Set the command as used by clearing the last 3 bits
-    cache[0x06] &= 0x1F;
-  }
-
-  if(cache[0x07] & 0xE0){
-    // IN1 has been updated
-    performTask(cache[0x07] & 0x1F);
-//    Serial.print(cache[0x07]);
-
-    // Set the command as used by clearing the last 3 bits
-    cache[0x07] &= 0x1F;
-  }
-
   
-  asm("_checkForPulse:");
+  START_PULSE_CHECK;
+  
   if (PINC & 0x10 && pulseSent){
     unsigned long width = 0;
     // wait for the pulse to stop
    while (PINC & 0x10 && width++ < 1583);
-//   Serial.println(width * 0.034 / 2);
 
    // 1200 Is the braking limit of about 20cm
    shouldBrake = width < 1200;
    
-//   serialEventRun();
    pulseSent = false;
   }
 

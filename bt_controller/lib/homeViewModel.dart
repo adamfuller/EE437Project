@@ -20,6 +20,7 @@ class HomeViewModel {
   double _throttleValue = 5.0;
   bool _isSpinningRight = false;
   bool _isSpinningLeft = false;
+  bool shouldSendCancel = false;
 
   //
   // Public Properties
@@ -129,6 +130,9 @@ class HomeViewModel {
       } else if (_isSpinningLeft) {
         BluetoothService.sendData(connectedAddress, ss.SteeringService.spinLeft);
         return;
+      } else if (shouldSendCancel){
+        BluetoothService.sendData(connectedAddress, ss.SteeringService.cancel);
+        shouldSendCancel = false;
       }
 
       BluetoothService.sendData(connectedAddress, ss.SteeringService.cacheCommands);
@@ -200,6 +204,7 @@ class HomeViewModel {
   /// Callback when the brake button is released.
   void brakeReleased(TapUpDetails details) {
     isBraking = false;
+    shouldSendCancel = true;
     onDataChanged();
   }
 
@@ -231,6 +236,11 @@ class HomeViewModel {
   /// Callback when the spin right, spin left, or cancel spin buttons are pressed.
   void spinLeft(bool val) {
     _isSpinningLeft = val;
+    onDataChanged();
+  }
+
+  void cancelSpin(){
+    shouldSendCancel = true;
     onDataChanged();
   }
 

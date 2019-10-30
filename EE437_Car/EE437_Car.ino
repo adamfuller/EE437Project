@@ -89,6 +89,8 @@ void setup() {
   pinMode(ENA_PIN, OUTPUT);
   pinMode(ENB_PIN, OUTPUT);
   servo.attach(SERVO_PIN);
+
+  pinMode(LED_BUILTIN, OUTPUT);
 }
 
 void loop() {
@@ -122,7 +124,6 @@ void loop() {
     } else {
       brake();
     }
-    Serial.println(micros() - start);
     return;
   }
 

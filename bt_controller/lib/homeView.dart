@@ -173,7 +173,8 @@ class _HomeViewState extends State<HomeView> {
       icon: const Icon(Icons.cancel),
       onPressed: () => vm
         ..spinRight(false)
-        ..spinLeft(false),
+        ..spinLeft(false)
+        ..cancelSpin(),
     );
   }
 
