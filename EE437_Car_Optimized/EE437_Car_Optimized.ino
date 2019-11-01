@@ -32,24 +32,33 @@
 
 #define IN1_HIGH asm(" sbi 11, 6") //PORTD|=0x40 // 0b0100 0000
 #define IN1_LOW asm(" cbi 11, 6") //PORTD&=0xBF  // 0b1011 1111
+#define IN1_ENABLE asm(" sbi 10, 6") //DDRD&=0x40  // 0b0100 0000
 
 #define IN2_HIGH asm(" sbi 11, 7") //PORTD|=0x80 // 0b1000 0000
 #define IN2_LOW asm(" cbi 11, 7") //PORTD&=0x7F  // 0b0111 1111
+#define IN2_ENABLE asm(" sbi 10, 7") //DDRD&=0x40  // 0b1000 0000
 
 #define IN3_HIGH asm(" sbi 5, 0")//PORTB|=0x01 // 0b0000 0001
 #define IN3_LOW asm(" cbi 5, 0")//PORTB&=0xFE  // 0b1111 1110
+#define IN3_ENABLE asm(" sbi 4, 0") //DDRB&=0x01  // 0b0000 0001
 
 #define IN4_HIGH asm(" sbi 5, 1")//PORTB|=0x02 // 0b0000 0010
 #define IN4_LOW asm(" cbi 5, 1")//PORTB&=0xFD  // 0b1111 1101
+#define IN4_ENABLE asm(" sbi 4, 1") //DDRB&=0x02  // 0b1000 0000
 
 #define ENA_HIGH asm(" sbi 11, 5")//PORTD|=0x08 // 0b0000 1000
 #define ENA_LOW asm(" cbi 11, 5")//PORTD&=0xF7  // 0b1111 0111
+#define ENA_ENABLE asm(" sbi 10, 5") //DDRD&=0x08  // 0b1000 0000
 
-#define ENB_HIGH asm(" sbi 5, 3")//PORTB|=0x98 // 0b0000 1000
+#define ENB_HIGH asm(" sbi 5, 3")//PORTB|=0x08 // 0b0000 1000
 #define ENB_LOW asm(" cbi 5, 3")//PORTB&=0xF7  // 0b1111 0111
+#define ENB_ENABLE asm(" sbi 4, 3") //DDRB&=0x08  // 0b1000 0000
 
 #define TRIG_HIGH asm(" sbi 8, 5")//PORTC|=0x20 // 0b0010 0000
 #define TRIG_LOW asm(" cbi 8, 5")//PORTC&=0xDF  // 0b1101 1111
+#define TRIG_ENABLE asm(" sbi 7, 5") //DDRC&=0x20  // 0b1000 0000
+
+#define ECHO_ENABLE asm(" cbi 7, 4") //DDRC&=0x20  // 0b1000 0000
 
 #define START_LOOP asm("_loopStart:");
 #define RESTART_LOOP asm("  JMP _loopStart");
@@ -57,7 +66,6 @@
 #define START_PULSE_CHECK asm("_pulseCheckStart:");
 #define SKIP_TO_PULSE_CHECK asm(" JMP _pulseCheckStart");
 
-uint8_t btOutput;
 uint8_t cache[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 Servo servo;
 bool shouldBrake = false;
@@ -67,6 +75,12 @@ uint8_t ledState = 0xFF;
 
 bool pulseSent = false;
 unsigned long pulseStart = 0;
+
+ISR(USART_RX_vect)
+{
+  uint8_t uart_rx = UDR0;
+  cache[uart_rx >> 5] = uart_rx;
+}
 
 bool sendPulse(){
   TRIG_LOW;
@@ -124,35 +138,42 @@ void performTask(uint8_t task){
 }
 
 void setup() {
-  Serial.begin(9600);
+//  Serial.begin(9600);
 
-  // Digital inputs
-  pinMode(ECHO_PIN, INPUT);
-
-  // Digital outputs
-  pinMode(TRIG_PIN, OUTPUT);
-  pinMode(IN1_PIN, OUTPUT);
-  pinMode(IN2_PIN, OUTPUT);
-  pinMode(IN3_PIN, OUTPUT);
-  pinMode(IN4_PIN, OUTPUT);
+  // BEGIN UART init
+  // Setup serial for 9600 Baud rate
+  UBRR0H = (unsigned char) (103>>8);
+  UBRR0L = (unsigned char) 103;
   
-  // Analog outputs
-  pinMode(ENA_PIN, OUTPUT);
-  pinMode(ENB_PIN, OUTPUT);
+  UCSR0B = (1<<RXEN0) | (1<<TXEN0);
+  UCSR0C = (1<<USBS0) | (3<<UCSZ00);
+  
+  // Enable Serial completion interrupt
+  cli();
+  UCSR0B |= (1<<RXCIE0);
+  sei();
 
+  // END UART init
+
+  // BEGIN GPIO init
+  // Enable IO
+  TRIG_ENABLE;
+  ECHO_ENABLE;
+  IN1_ENABLE;
+  IN2_ENABLE;
+  IN3_ENABLE;
+  IN4_ENABLE;
+  ENA_ENABLE;
+  ENB_ENABLE;
+  
   pinMode(LED_BUILTIN, OUTPUT);
-
-  digitalWrite(ENA_PIN, HIGH);
-  digitalWrite(ENB_PIN, HIGH);
-
-
+  // END GPIO init
+  
   // Servo setup
   servo.attach(SERVO_PIN);
 }
 
 int main(void){
-
-  init();
 
   setup();
 
@@ -164,12 +185,6 @@ int main(void){
   }
   cycleCount++;
 
-  // Check for next command(s)
-  for (uint8_t i = 0; i<10 && Serial.available(); i++){
-    btOutput = Serial.read();
-    cache[(btOutput & 0xE0) >> 5] = btOutput;
-  }
-
   if (shouldBrake || !cycleCount%3){
     
     if (shouldBrake){
@@ -178,6 +193,7 @@ int main(void){
         brake();
 
         if (!pulseSent) sendPulse(); 
+        
         SKIP_TO_PULSE_CHECK;
       }
     }
@@ -190,10 +206,6 @@ int main(void){
   if(cache[0x07] & 0xE0){
     // IN1 has been updated
     performTask(cache[0x07] & 0x1F);
-//    Serial.print(cache[0x07]);
-
-    // Set the command as used by clearing the last 3 bits
-//    cache[0x07] &= 0x1F;
     
     SKIP_TO_PULSE_CHECK;
   }
@@ -204,45 +216,17 @@ int main(void){
   if (cycleCount < ((cache[0x06] & 0x1F) * 8)) ENB_HIGH;
   else ENB_LOW;
 
-  if(cache[0x01] & 0xE0){
-    // IN1 has been updated
-    if (cache[0x01] & 0x1F) IN1_HIGH;
-    else IN1_LOW;
-//    Serial.print(cache[0x1]);
+  if (cache[0x01] & 0x1F) IN1_HIGH;
+  else IN1_LOW;
 
-    // Set the command as used by clearing the last 3 bits
-    cache[0x01] &= 0x1F;
-  }
+  if (cache[0x02] & 0x1F) IN2_HIGH;
+  else IN2_LOW;
 
-  if(cache[0x02] & 0xE0){
-    // IN2 has been updated
-    if (cache[0x02] & 0x1F) IN2_HIGH;
-    else IN2_LOW;
-//    Serial.print(cache[0x02]);
-
-    // Set the command as used by clearing the last 3 bits
-    cache[0x02] &= 0x1F;
-  }
-
-  if(cache[0x03] & 0xE0){
-    // IN3 has been updated
-    if (cache[0x03] & 0x1F) IN3_HIGH;
-    else IN3_LOW;
-//    Serial.print(cache[0x03]);
-
-    // Set the command as used by clearing the last 3 bits
-    cache[0x03] &= 0x1F;
-  }
-
-  if(cache[0x04] & 0xE0){
-    // IN4 has been updated
-    if (cache[0x04] & 0x1F) IN4_HIGH;
-    else IN4_LOW;
-//    Serial.print(cache[0x04]);
-
-    // Set the command as used by clearing the last 3 bits
-    cache[0x04] &= 0x1F;
-  }
+  if (cache[0x03] & 0x1F) IN3_HIGH;
+  else IN3_LOW;
+    
+  if (cache[0x04] & 0x1F) IN4_HIGH;
+  else IN4_LOW;
   
   START_PULSE_CHECK;
   
