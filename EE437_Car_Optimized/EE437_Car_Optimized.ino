@@ -54,9 +54,17 @@
 #define ENB_LOW asm(" cbi 5, 3")//PORTB&=0xF7  // 0b1111 0111
 #define ENB_ENABLE asm(" sbi 4, 3") //DDRB&=0x08  // 0b1000 0000
 
+#define LED_HIGH asm(" sbi 5, 5")//PORTB|=0x20 // 0b0010 0000
+#define LED_LOW asm(" cbi 5, 5")//PORTB&=0xF7  // 0b1111 0111
+#define LED_ENABLE asm(" sbi 4, 5") //DDRB&=0x20  // 0b0010 0000
+
 #define TRIG_HIGH asm(" sbi 8, 5")//PORTC|=0x20 // 0b0010 0000
 #define TRIG_LOW asm(" cbi 8, 5")//PORTC&=0xDF  // 0b1101 1111
 #define TRIG_ENABLE asm(" sbi 7, 5") //DDRC&=0x20  // 0b1000 0000
+
+//#define SERVO_HIGH asm(" sbi 11, 3")//PORTD &= 0b0000 1000
+//#define SERVO_LOW asm(" cbi 11, 3")//PORTD &= 0b1111 0111
+//#define SERVO_ENABLE asm(" sbi 10, 3") //DDRD &= 0b0000 1000
 
 #define ECHO_ENABLE asm(" cbi 7, 4") //DDRC&=0x20  // 0b1000 0000
 
@@ -75,11 +83,14 @@ uint8_t ledState = 0xFF;
 
 bool pulseSent = false;
 unsigned long pulseStart = 0;
+unsigned long width = 0;
+
 
 ISR(USART_RX_vect)
 {
   uint8_t uart_rx = UDR0;
   cache[uart_rx >> 5] = uart_rx;
+  if (width) width++;
 }
 
 bool sendPulse(){
@@ -94,8 +105,14 @@ bool sendPulse(){
 }
 
 void brake(){
-  ENA_LOW;
-  ENB_LOW;
+//  cache[0x01] = 0x00;
+//  cache[0x02] = 0x00;
+//  cache[0x03] = 0x00;
+//  cache[0x04] = 0x00;
+//  cache[0x05] = 0x00;
+//  cache[0x06] = 0x00;
+  ENA_HIGH;
+  ENB_HIGH;
   IN1_LOW;
   IN2_LOW;
   IN3_LOW;
@@ -120,8 +137,7 @@ void spinLeft(){
   IN4_LOW;
 }
 
-uint8_t steeringAngle()
-{
+uint8_t steeringAngle(){
   uint8_t leftPower = (cache[0x06] & 0x1F);
   uint8_t rightPower = (cache[0x05] & 0x1F);
 
@@ -165,8 +181,8 @@ void setup() {
   IN4_ENABLE;
   ENA_ENABLE;
   ENB_ENABLE;
+  LED_ENABLE;
   
-  pinMode(LED_BUILTIN, OUTPUT);
   // END GPIO init
   
   // Servo setup
@@ -179,25 +195,27 @@ int main(void){
 
   START_LOOP;
   
-  if (cycleCount == 0){
-    digitalWrite(LED_BUILTIN, ledState);
-    ledState = ~ledState;
-  }
+//  if (cycleCount == 0){
+//    if (ledState) LED_HIGH;
+//    else LED_LOW;
+//    ledState = ~ledState;
+//  }
   cycleCount++;
 
   if (shouldBrake || !cycleCount%3){
-    
-    if (shouldBrake){
-      // Ensure we aren't attempting to go in reverse
-      if ( !(cache[0x07] != 0xE0 && ((cache[0x02]&0x1F) || (cache[0x03]&0x1F))) ){
-        brake();
 
-        if (!pulseSent) sendPulse(); 
-        
-        SKIP_TO_PULSE_CHECK;
-      }
+    // Ensure we aren't attempting to go in reverse
+    if ( shouldBrake && (!(cache[0x02] & 0x1F) || !(cache[0x03]&0x1F) ) ){
+      brake();
+      LED_HIGH;
+          
+      if (!pulseSent) sendPulse(); 
+      
+      
+      SKIP_TO_PULSE_CHECK;
     }
-
+    LED_LOW;
+    
     if (!pulseSent) sendPulse();
   }
 
@@ -231,14 +249,14 @@ int main(void){
   START_PULSE_CHECK;
   
   if (PINC & 0x10 && pulseSent){
-    unsigned long width = 0;
+    width = 0;
     // wait for the pulse to stop
-   while (PINC & 0x10 && width++ < 1583);
-
+   while (PINC & 0x10 && width++ < 1183);
    // 1200 Is the braking limit of about 20cm
-   shouldBrake = width < 1200;
+   shouldBrake = width < 800;
    
    pulseSent = false;
+   width = 0;
   }
 
   if (micros() - pulseStart > 2583){
