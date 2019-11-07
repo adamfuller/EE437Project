@@ -1,22 +1,5 @@
-
-  /*
-   * Swiching from the for-loop to purely if-statements
-   * reduced the over all time to only a third.
-   * From 546 uS to 172 uS, for the for-loop and if-statements respectively
-   * 
-   * By switching the extent calculations to only use integer math
-   * the time was reduced further 
-   * from 172uS to 84 uS
-   * 
-   * By changing the steeringAngle calculations to use integer math
-   * and only use 1 byte of precision the time was reduced
-   * from 84 uS to 80uS
-   * The program at this point is approximately 6 times as fast
-   *    (when not checking the distance sensor)
-   * 
-   */
-   
 #include <Servo.h>
+
 
 #define ECHO_PIN  A4 // PC4
 #define TRIG_PIN  A5 // PC5
@@ -28,7 +11,6 @@
 #define IN4_PIN   9 // Left forward
 #define SERVO_PIN     3 
 
-// asm(" sbi 11, 7") sets bit 7 of address 11
 
 #define IN1_HIGH asm(" sbi 11, 6") //PORTD|=0x40 // 0b0100 0000
 #define IN1_LOW asm(" cbi 11, 6") //PORTD&=0xBF  // 0b1011 1111
@@ -74,43 +56,52 @@
 #define START_PULSE_CHECK asm("_pulseCheckStart:");
 #define SKIP_TO_PULSE_CHECK asm(" JMP _pulseCheckStart");
 
+uint8_t btOutput;
+int intent, extent;
 uint8_t cache[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+bool checkedLastTime = false;
+bool shouldBrake;
 Servo servo;
-bool shouldBrake = false;
-
 uint8_t cycleCount = 0;
 uint8_t ledState = 0xFF;
-
-bool pulseSent = false;
-unsigned long pulseStart = 0;
-unsigned long width = 0;
-
 
 ISR(USART_RX_vect)
 {
   uint8_t uart_rx = UDR0;
-  cache[uart_rx >> 5] = uart_rx;
-  if (width) width++;
+  uint8_t intent = uart_rx / 32;
+  uint8_t extent = uart_rx & 0x1F;
+  cache[intent] = extent;
+
+  if (intent > 4 || (shouldBrake && intent != 2 && intent != 3)){
+    // Power was adjusted
+  } else {
+    if (intent == 1){
+      if (extent) IN1_HIGH;
+      else IN1_LOW;
+    } else if (intent == 2){
+      if (extent) IN2_HIGH;
+      else IN2_LOW;
+    } else if (intent == 3){
+      if (extent) IN3_HIGH;
+      else IN3_LOW;
+    } else if (intent == 4){
+      if (extent) IN4_HIGH;
+      else IN4_LOW;
+    }
+  }
 }
 
-bool sendPulse(){
+int getDistance() {
   TRIG_LOW;
   delayMicroseconds(2);
   TRIG_HIGH;
   delayMicroseconds(10);
   TRIG_LOW;
   delayMicroseconds(2);
-  pulseSent = true;
-  pulseStart = micros();
+  return (int)pulseIn(ECHO_PIN, HIGH, 1300) / 58;
 }
 
 void brake(){
-//  cache[0x01] = 0x00;
-//  cache[0x02] = 0x00;
-//  cache[0x03] = 0x00;
-//  cache[0x04] = 0x00;
-//  cache[0x05] = 0x00;
-//  cache[0x06] = 0x00;
   ENA_HIGH;
   ENB_HIGH;
   IN1_LOW;
@@ -155,9 +146,6 @@ void performTask(uint8_t task){
 
 void setup() {
 //  Serial.begin(9600);
-
-  // BEGIN UART init
-  // Setup serial for 9600 Baud rate
   UBRR0H = (unsigned char) (103>>8);
   UBRR0L = (unsigned char) 103;
   
@@ -168,11 +156,7 @@ void setup() {
   cli();
   UCSR0B |= (1<<RXCIE0);
   sei();
-
-  // END UART init
-
-  // BEGIN GPIO init
-  // Enable IO
+  
   TRIG_ENABLE;
   ECHO_ENABLE;
   IN1_ENABLE;
@@ -183,85 +167,55 @@ void setup() {
   ENB_ENABLE;
   LED_ENABLE;
   
-  // END GPIO init
-  
-  // Servo setup
   servo.attach(SERVO_PIN);
 }
 
 int main(void){
-
+  init();
   setup();
 
   START_LOOP;
+  unsigned long start = micros();
+  if (cycleCount == 0){
+    if (ledState) LED_HIGH;
+    else LED_LOW;
+    ledState = ~ledState;
+  }
+  cycleCount = (cycleCount + 1) % 0x1F;
+
+  if (!(cycleCount%4)){
+    int dist = getDistance();  
+    // Check if we should brake.
+    shouldBrake = abs(dist) <= 20 && abs(dist) != 0;
+  }
   
-//  if (cycleCount == 0){
-//    if (ledState) LED_HIGH;
-//    else LED_LOW;
-//    ledState = ~ledState;
-//  }
-  cycleCount++;
+  checkedLastTime = !checkedLastTime;
 
-  if (shouldBrake || !cycleCount%3){
-
-    // Ensure we aren't attempting to go in reverse
-    if ( shouldBrake && (!(cache[0x02] & 0x1F) || !(cache[0x03]&0x1F) ) ){
+  if (shouldBrake){
+    // Ensure we shouldn't be braking or going in reverse
+    if ( cache[0x07] != 0xE0 && (cache[0x02]&0x1F != 0x00 || cache[0x03]&0x1F != 0x00) ){
+      // Just don't do anything I guess
+    } else {
       brake();
-      LED_HIGH;
-          
-      if (!pulseSent) sendPulse(); 
-      
-      
-      SKIP_TO_PULSE_CHECK;
+      RESTART_LOOP;
     }
-    LED_LOW;
-    
-    if (!pulseSent) sendPulse();
   }
 
   servo.write(steeringAngle());
 
-  if(cache[0x07] & 0xE0){
+  if(cache[0x07]){
     // IN1 has been updated
     performTask(cache[0x07] & 0x1F);
-    
-    SKIP_TO_PULSE_CHECK;
+    RESTART_LOOP;
   }
 
-  if (cycleCount < ((cache[0x05] & 0x1F) * 8)) ENA_HIGH;
+  if (cycleCount < cache[0x05]) ENA_HIGH;
   else ENA_LOW;
 
-  if (cycleCount < ((cache[0x06] & 0x1F) * 8)) ENB_HIGH;
+  if (cycleCount < cache[0x06]) ENB_HIGH;
   else ENB_LOW;
 
-  if (cache[0x01] & 0x1F) IN1_HIGH;
-  else IN1_LOW;
-
-  if (cache[0x02] & 0x1F) IN2_HIGH;
-  else IN2_LOW;
-
-  if (cache[0x03] & 0x1F) IN3_HIGH;
-  else IN3_LOW;
-    
-  if (cache[0x04] & 0x1F) IN4_HIGH;
-  else IN4_LOW;
-  
-  START_PULSE_CHECK;
-  
-  if (PINC & 0x10 && pulseSent){
-    width = 0;
-    // wait for the pulse to stop
-   while (PINC & 0x10 && width++ < 1183);
-   // 1200 Is the braking limit of about 20cm
-   shouldBrake = width < 800;
-   
-   pulseSent = false;
-   width = 0;
-  }
-
-  if (micros() - pulseStart > 2583){
-    pulseSent = false;
-  }
+//  Serial.println(micros() - start);
 
   RESTART_LOOP;
   return 0;
