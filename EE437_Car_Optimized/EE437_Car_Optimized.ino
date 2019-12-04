@@ -72,6 +72,8 @@ ISR(USART_RX_vect)
   uint8_t extent = uart_rx & 0x1F;
   cache[intent] = extent;
 
+  if (intent == 7) cache[intent] = uart_rx;
+  
   if (intent > 4 || (shouldBrake && intent != 2 && intent != 3)){
     // Power was adjusted
   } else {
